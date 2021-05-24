@@ -1,0 +1,35 @@
+*
+* Maestix Library
+*
+* Copyright (C) 2021 Richard "Shred" Koerber
+*	http://maestix.shredzone.org
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program. If not, see <http://www.gnu.org/licenses/>.
+*
+##base _MaestixBase
+##bias 30
+##public
+AllocMaestro(taglist)(a0)
+FreeMaestro(maestrobase)(a0)
+SetMaestro(maestrobase,taglist)(a0/a1)
+GetStatus(maestrobase,mstat)(a0/d0)
+TransmitData(maestrobase,datamessage)(a0/a1)
+ReceiveData(maestrobase,datamessage)(a0/a1)
+FlushTransmit(maestrobase)(a0)
+FlushReceive(maestrobase)(a0)
+StartRealtime(maestrobase,taglist)(a0/a1)
+StopRealtime(maestrobase)(a0)
+UpdateRealtime(maestrobase,taglist)(a0/a1)
+ReadPostLevel(maestrobase,taglist)(a0/a1)
+##end

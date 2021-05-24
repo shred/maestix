@@ -1,0 +1,42 @@
+Short:        MaestroPro driver + AHI driver
+Author:       Richard 'Shred' Koerber
+Uploader:     aminet@shredzone.de (Richard Koerber)
+Type:         driver/audio
+Version:      41.50
+Requires:     MaestroPro hardware
+Architecture: m68k-amigaos >= 2.0.4
+
+Keywords:     maestropro maestro mpro driver maestix ocss play16 delitracker ahi realtime mpeg maestixfx
+License:      GNU General Public License v3
+URL:          https://maestix.shredzone.org
+
+Maestix is a system-shared library that drives the MaestroPro sound board
+by MacroSystem.
+
+Features:
+
+  - Digital playback and recording, even in full-duplex mode.
+  - AHI driver is included.
+  - Comes with a MUI based RealTime utility and an MPEG audio player.
+  - Supports S/P-DIF and AES/EBU (studio mode) Channel Status Bits.
+  - 16 realtime audio effects, custom realtime effects are possible.
+  - Channel Status Bits and User Data Bits can be individually set.
+  - Very easy to use. No hardware knowledge about MaestroPro is required.
+  - VMM compatible, no hacks, no muforce, mungwall, and patchwork hits.
+  - Requires 68020 or higher. 68060 and DraCo compatible.
+  - GPL licensed, open source.
+  - Source Code is available at GitHub: https://github.com/shred/maestix
+
+This is an official update! :-)
+
+New in this release:
+
+  - The source code is published under GPLv3 license
+  - Finally, there is an English documentation now.
+    (The German documentation has been removed in its favor.)
+  - Minor optimizations and bug fixes
+
+Why 68020 or higher? Well, due to the amount of data moved by the driver
+and the MaestroPro card, it doesn't really make much fun to use it on an
+68000 processor. However, if you really need an 68000 version of this
+library, please get in contact with me.

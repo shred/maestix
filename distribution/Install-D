@@ -1,0 +1,459 @@
+;*
+;* Maestix Library
+;*
+;* Copyright (C) 2021 Richard "Shred" Koerber
+;*	http://maestix.shredzone.org
+;*
+;* This program is free software: you can redistribute it and/or modify
+;* it under the terms of the GNU General Public License as published by
+;* the Free Software Foundation, either version 3 of the License, or
+;* (at your option) any later version.
+;*
+;* This program is distributed in the hope that it will be useful,
+;* but WITHOUT ANY WARRANTY; without even the implied warranty of
+;* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+;* GNU General Public License for more details.
+;*
+;* You should have received a copy of the GNU General Public License
+;* along with this program. If not, see <http://www.gnu.org/licenses/>.
+;*
+
+
+;********* MESSAGES ***************************************
+
+(set MStartup
+  (cat  "\nWillkommen zur\n\n"
+        "Maestix Installation\n\n\n"
+        "Lese bitte unbedingt VOR dem ersten Start die Anleitung!"
+  )
+)
+
+(set M68020
+  (cat  "\nBITTE BEACHTE: Die Programme in diesem Paket benötigen mindestens "
+        "einen 68020 und laufen auf diesem System nicht!\n\n"
+        "Du kannst die Installation nun abbrechen, oder lediglich die "
+        "Textdateien und Developer-Unterlagen installieren."
+  )
+)
+
+(set POptions "Was soll installiert werden?")
+(set HOptions
+  (cat  "Wähle aus, welche Teile des Pakets installiert werden sollen.\n\n"
+        "Treiber: Die eigentliche Maestix-Treiberbibliothek.\n\n"
+        "Hilfsprogramme: Wichtige Hilfsprogramme zum Konfigurieren und Betrieb.\n\n"
+        "MaestixFX: Ein Programm zur Echtzeit-Soundbearbeitung. Erfordert MUI.\n\n"
+        "Dokumentation: Normale Benutzerdokumentation.\n\n"
+        "Entwicklerunterlagen: Entwicklerdokumentationen, Beispiele und Includedateien.\n\n"
+        "AHI-Treiber: Treiber für die AHI-Schnittstelle, wenn im Paket vorhanden. "
+        "Erfordert ein bereits installiertes AHI.\n\n"
+        "Solltest du dir nicht sicher sein, wähle einfach die Voreinstellung. "
+        "Später können weitere Teile problemlos hinzugefügt werden."
+  )
+)
+(set SDriver  "Treiber")
+(set STools   "Hilfsprogramme")
+(set SMFX     "MaestixFX")
+(set SDoc     "Dokumentation")
+(set SDevelop "Entwicklerunterlagen")
+(set SAHIdrv  "AHI-Treiber")
+
+(set PLibDestDir "Wohin soll der maestix-Treiber installiert werden?")
+(set HLibDestDir
+  (cat  "Wähle das Verzeichnis, in das du System-Libraries ablegst. "
+        "Üblicherweise ist es \"LIBS:\"."
+  )
+)
+
+(set PToolDestDir "Wohin sollen die Hilfstools installiert werden?")
+(set HToolDestDir
+  (cat  "Wähle hier ein Verzeichnis, das im Suchpfad der Shell liegt. "
+        "Üblicherweise ist es \"C:\"."
+  )
+)
+
+(set PDestDir "Wohin soll das Maestix-Paket installiert werden?\nEine Schublade wird dort angelegt.")
+(set HDestDir
+  (cat  "Wähle hier ein Verzeichnis, in das die Anleitungen, Beispielprogramme und "
+        "Entwicklerunterlagen abgelegt werden sollen. Wenn du bereits Maestix installiert "
+        "hast, wähle das Verzeichnis aus, in dem sich die Maestix-Schublade befindet."
+  )
+)
+
+(set PAHIDestDir "Wohin soll der AHI-Treiber installiert werden?")
+(set HAHIDestDir
+  (cat  "Wähle das Verzeichnis, in dem die AHI-Treiber abgelegt sind. "
+        "Üblicherweise ist es \"DEVS:\"."
+  )
+)
+
+(set PToolOpt "Welche Voreinstellungen möchtest du vornehmen?")
+(set HToolOpt
+  (cat  "Hier kannst du Voreinstellungen vornehmen, die bei jedem Systemstart gesetzt werden.\n\n"
+        "Eingang: Wähle hier einen Eingang. Er wird bevorzugt, wenn ein Programm "
+        "keinen Eingang auswählt. Üblicherweise entspricht dies der Jumper-Einstellung. "
+        "Voreingestellt ist der optische Eingang.\n\n"
+        "Modus: Wenn du professionelles Equipment verwendest, kannst du den Studio-Modus "
+        "voreinstellen.\n\n"
+        "Verzögerung: Wenn dein digitales Endgerät bei Signalwechsel einige Sekunden verzögert, "
+        "kannst du hier eine Verzögerungszeit einstellen. Voreingestellt ist eine Zeit von "
+        "100ms."
+  )
+)
+
+(set SInput "Eingang")
+(set SMode  "Modus")
+(set SDelay "Verzögerung")
+
+(set PDefInput "Welchen Standard-Eingang verwendest du?")
+(set HDefInput "Dies ist üblicherweise der Eingang, der auch mit dem Jumper ausgewählt ist.")
+(set SOptical  "Optisch")
+(set SCoaxial  "Koaxial")
+
+(set PDefStudio "Welches Datenformat benötigt dein Endgerät?")
+(set HDefStudio "Normalerweise ist es S/P-DIF. Siehe Bedienungsanleitung des Endgerätes.")
+(set SSPDIF     "S/P-DIF")
+(set SAESEBU    "AES/EBU")
+
+(set PDefDelay "Wähle eine Umschaltverzögerung (Millisekunden)")
+(set HDefDelay
+  (cat  "Stelle hier in etwa die Zeit ein, die dein Endgerät zum Umschalten benötigt. "
+        "Bei einem Sony DTC-690 ist dies zum Beispiel 1000ms."
+  )
+)
+
+(set PCopyLib   "Kopiere den Kartentreiber")
+(set PCopyTool  "Kopiere die Hilfsprogramme")
+(set PCopyMFX   "Kopiere MaestixFX")
+(set PCopyDocs  "Kopiere die Anleitung")
+(set PCopyDev   "Kopiere die AutoDocs")
+(set PCopyInc   "Kopiere die Includes")
+(set PCopyDemos "Kopiere die Beispiele")
+
+(set HCopyTool
+  (cat  "Welche Hilfsprogramme sollen kopiert werden?\n\n"
+        "AllocMstx, FreeMstx: Mit ihnen können die originalen MaestroPro-Programme die "
+        "Karte über den Maestix-Treiber belegen. So wird eine Kollision vermieden.\n\n"
+        "SetMstx: Voreinstellungsprogramm, das unbedingt installiert werden sollte!\n\n"
+        "MaestroPEG: Ein einfacher MPEG-Audio-Player. Er benötigt eine richtig installierte "
+        "mpega.library. Diese findest du im AmiNet."
+  )
+)
+
+(set PStartup
+  (cat  "Das Voreinstellungsprogramm wird mit den gewünschten Parametern jetzt in die "
+        "Datei S:user-startup hinzugefügt. Um die Einstellungen wirksam zu machen, "
+        "starte das System nach der Installation neu."
+  )
+)
+
+;********* FILES ******************************************
+
+(set FAHI        "MaestixAHI/")
+(set FLib        "Maestix/libs/maestix.library")
+(set FTool       "Maestix/c/")
+(set FAllocMstx  "AllocMstx")
+(set FFreeMstx   "FreeMstx")
+(set FSetMstx    "SetMstx")
+(set FMaestroPEG "MaestroPEG")
+(set FMFX        "Maestix/MaestixFX")
+(set FDocs       "Maestix/")
+(set FInc        "Maestix/Include")
+(set FDemos      "Maestix/Examples")
+(set FMstxDoc    "Maestix/maestix.doc")
+(set FMstxGuide  "Maestix/Maestix.guide")
+(set FAHIDrv     "MaestixAHI/devs/")
+(set FAHIGuide   "MaestixAHI/MaestixAHI.guide")
+
+
+
+;********* INSTALLER SCRIPT *******************************
+
+(set @default-dest "")          ; currently no specific dir
+
+;------ Greetings to the user -----------------------------
+(message MStartup)
+
+;------ Check if the 68020 is available -------------------
+(if (< (database "cpu") 68020)
+  (message M68020)
+)
+
+;------ What should be installed --------------------------
+(if (<> (exists FAHI) 2)        ; is MaestixAHI included?
+  (set SAHIdrv "")
+)
+
+(if (< @user-level 2)           ; is is not an Amiga expert?
+  (
+    (if (< (database "cpu") 68020)
+      ((set SDriver "") (set SMFX "") (set SAHIdrv ""))
+    )
+    (if (<> (exists "libs:muimaster.library") 1)
+      (set SMFX "")
+    )
+    (if (<> (exists "devs:ahi.device") 1)
+      (set SAHIdrv "")
+    )
+  )
+)
+
+(set InstOpts                   ; ask what to install
+  (askoptions
+    (prompt  POptions)
+    (help    HOptions)
+    (choices SDriver STools SMFX SDoc SDevelop SAHIdrv)
+    (default -1)
+  )
+)
+
+;------ Ask for destinations ------------------------------
+(if (IN InstOpts 0)             ; Driver
+  (
+    (set LibDestDir "LIBS:")    ; Destination for the library
+    (if (= @user-level 2)
+      (set LibDestDir
+        (askdir
+          (prompt PLibDestDir)
+          (help   HLibDestDir)
+          (default LibDestDir)
+        )
+      )
+    )
+  )
+)
+
+(if (IN InstOpts 1)             ; Tools
+  (
+    (set ToolDestDir "C:")
+    (if (= @user-level 2)
+      (set ToolDestDir
+        (askdir
+          (prompt PToolDestDir)
+          (help   HToolDestDir)
+          (default ToolDestDir)
+        )
+      )
+    )
+  )
+)
+
+(if (<> (BITAND InstOpts 28) 0) ; MaestixFX, Doc, Developer
+  (
+    (set DestDir
+      (askdir
+        (prompt  PDestDir)
+        (help    HDestDir)
+        (default "Work:")
+      )
+    )
+    (set DestDir
+      (tackon DestDir "Maestix")
+    )
+    (makedir
+      (DestDir)
+      (infos)
+    )
+    (set @default-dest (DestDir))
+  )
+)
+
+(if (IN InstOpts 5)             ; AHI
+  (
+    (set AHIDestDir "DEVS:")    ; Destination for AHI
+    (if (= @user-level 2)
+      (set AHIDestDir
+        (askdir
+          (prompt PAHIDestDir)
+          (help   HAHIDestDir)
+          (default AHIDestDir)
+        )
+      )
+    )
+  )
+)
+
+
+;------ Copy all files ------------------------------------
+(if (IN InstOpts 0)             ; Driver
+  (
+    (copylib
+      (prompt PCopyLib)
+      (help   @copylib-help)
+      (confirm)
+      (source FLib)
+      (dest   LibDestDir)
+    )
+  )
+)
+
+(if (IN InstOpts 1)             ; Tools
+  (
+    (copyfiles
+      (prompt PCopyTool)
+      (help   HCopyTool)
+      (confirm)
+      (choices FAllocMstx FFreeMstx FSetMstx FMaestroPEG)
+      (source FTool)
+      (dest   ToolDestDir)
+    )
+  )
+)
+
+(if (IN InstOpts 2)             ; MFX
+  (
+    (copyfiles
+      (prompt PCopyMFX)
+      (help   @copyfiles-help)
+      (confirm)
+      (source FMFX)
+      (dest   DestDir)
+      (infos)
+      (noposition)
+    )
+  )
+)
+
+(if (IN InstOpts 3)             ; Docs
+  (
+    (copyfiles
+      (prompt PCopyDocs)
+      (help   @copyfiles-help)
+      (confirm)
+      (source FMstxGuide)
+      (dest   DestDir)
+      (infos)
+      (noposition)
+    )
+  )
+)
+
+(if (IN InstOpts 4)             ; Developer
+  (
+    (set DevDir
+      (tackon DestDir "Developer")
+    )
+    (makedir
+      (DevDir)
+      (infos)
+    )
+    (copyfiles
+      (prompt PCopyDev)
+      (help   @copyfiles-help)
+      (confirm)
+      (source FMstxDoc)
+      (dest   (tackon DevDir "AutoDocs"))
+      (infos)
+      (noposition)
+    )
+    (copyfiles
+      (prompt PCopyInc)
+      (help   @copyfiles-help)
+      (confirm)
+      (all)
+      (source FInc)
+      (dest   (tackon DevDir "Includes"))
+    )
+    (copyfiles
+      (prompt PCopyDemos)
+      (help   @copyfiles-help)
+      (confirm)
+      (all)
+      (source FDemos)
+      (dest   (tackon DevDir "Examples"))
+    )
+  )
+)
+
+(if (IN InstOpts 5)             ; AHI
+  (
+    (copyfiles
+      (prompt PCopyAHI)
+      (help   @copyfiles-help)
+      (confirm)
+      (all)
+      (source FAHIDrv)
+      (dest   AHIDestDir)
+    )
+    (if (IN InstOpts 3)
+      (
+        (copyfiles
+          (prompt PCopyDocs)
+          (help   @copyfiles-help)
+          (confirm)
+          (source FAHIGuide)
+          (dest   DestDir)
+          (infos)
+          (noposition)
+        )
+      )
+    )
+  )
+)
+
+;------ Ask for options -----------------------------------
+(if (IN InstOpts 1)             ; Tools
+  (
+    (set ToolOpts
+      (askoptions
+        (prompt  PToolOpt)
+        (help    HToolOpt)
+        (choices SInput SMode SDelay
+        (default -1))
+      )
+    )
+    (if (IN ToolOpts 0)
+      (
+        (set DefInput (askchoice
+          (prompt PDefInput)
+          (help   HDefInput)
+          (choices SOptical SCoaxial))
+        )
+        (if (= DefInput 0)
+          (set DefInput "INPUT=OPTICAL")
+          (set DefInput "INPUT=COAXIAL")
+        )
+      )
+      (set DefInput "")
+    )
+    (if (IN ToolOpts 1)
+      (
+        (set DefStudio (askchoice
+          (prompt PDefStudio)
+          (help   HDefStudio)
+          (choices SSPDIF SAESEBU))
+        )
+        (if (= DefStudio 0)
+          (set DefStudio "NOSTUDIO")
+          (set DefStudio "STUDIO")
+        )
+      )
+      (set DefStudio "")
+    )
+    (if (IN ToolOpts 2)
+      (
+        (set DefDelay (asknumber
+          (prompt PDefDelay)
+          (help   HDefDelay)
+          (range  0 30000)
+          (default 1000))
+        )
+        (set DefDelay ("DELAY=%ld" DefDelay))
+      )
+      (set DefDelay "")
+    )
+    (startup
+      ("Maestix")
+      (prompt PStartup)
+      (help   @startup-help)
+      (command ("SetMstx QUIET %s %s %s" DefInput DefDelay DefStudio))
+      (confirm)
+    )
+  )
+)
+
+
+
+(exit)
+
+;********* DONE *******************************************
+

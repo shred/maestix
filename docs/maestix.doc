@@ -1,0 +1,711 @@
+TABLE OF CONTENTS
+
+maestix.library/AllocMaestro
+maestix.library/FlushReceive
+maestix.library/FlushTransmit
+maestix.library/FreeMaestro
+maestix.library/GetStatus
+maestix.library/ReadPostLevel
+maestix.library/ReceiveData
+maestix.library/SetMaestro
+maestix.library/StartRealtime
+maestix.library/StopRealtime
+maestix.library/TransmitData
+maestix.library/UpdateRealtime
+
+maestix.library/AllocMaestro                     maestix.library/AllocMaestro
+
+   NAME
+        AllocMaestro -- Allocates the MaestroPro sound board (V35)
+
+   SYNOPSIS
+        MaestroBase = AllocMaestro(Tags)
+            D0.l                   A0.l
+
+        struct MaestroBase *AllocMaestro(struct TagItem *);
+
+        MaestroBase = AllocMaestroTags(Tag1, ...)
+
+        struct MaestroBase *AllocMaestroTags(ULONG, ...);
+
+   FUNCTION
+        This function allocates the MaestroPro sound board and gives
+        exclusive access to the client.
+
+        The default settings after AllocMaestro() are:
+
+         - Input is INPUT_STD
+         - Output is OUTPUT_BYPASS
+         - Studio mode is turned off
+         - Copy protection is turned off
+         - Emphasis is turned off
+         - Source is DAT
+         - Rate is 48kHz
+         - Validity is true
+         - UDBs are reset
+
+   INPUTS
+        Tags -- Reserved for future use. For now, always provide NULL or
+                a TAG_DONE.
+
+   RESULTS
+        MaestroBase -- MaestroBase structure (private), or NULL if the board
+                could not be allocated. Reasons are: Board is not present or
+                already in use, or system ran out of memory.
+
+   NOTES
+        This function must be used in a DOS process only!
+
+   SEE ALSO
+        FreeMaestro()
+
+   BUGS
+        Sadly it cannot be prevented that the original MacroSystem tools
+        (like MaestroBR or Samplitude) can still use the board after
+        AllocMaestro() has been invoked.
+
+        This function tries to find out if the MaestroPro is currently
+        in use by another tool, and then fails to allocate it. However
+        this test may fail, so use AllocMstx and FreeMstx to be on the
+        safe side.
+
+maestix.library/FlushReceive                     maestix.library/FlushReceive
+
+   NAME
+        FlushReceive -- Stops receiver and flushes all messages (V36)
+
+   SYNOPSIS
+        FlushReceive(MaestroBase)
+                          A0.l
+
+        void FlushReceive(struct MaestroBase *);
+
+   FUNCTION
+        This function immediately stops the receiver.
+
+        All messages sent to Maestix by ReceiveData() are replied
+        so they can be released. The buffer contents may be
+        partially changed or not changed at all, and is meant to
+        be disposed.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+
+   RESULTS
+
+   NOTES
+
+   SEE ALSO
+        FlushTransmit(), ReceiveData()
+
+   BUGS
+
+maestix.library/FlushTransmit                   maestix.library/FlushTransmit
+
+   NAME
+        FlushTransmit -- Stops transmission and replies all messages (V36)
+
+   SYNOPSIS
+        FlushTransmit(MaestroBase)
+                          A0.l
+
+        void FlushTransmit(struct MaestroBase *);
+
+   FUNCTION
+        This function immediately stops the transmitter.
+
+        All messages sent to Maestix by TransmitData() are replied so
+        they can be released.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+
+   RESULTS
+
+   NOTES
+
+   SEE ALSO
+        FlushReceive(), TransmitData()
+
+   BUGS
+
+maestix.library/FreeMaestro                       maestix.library/FreeMaestro
+
+   NAME
+        FreeMaestro -- Frees the MaestroPro sound board (V35)
+
+   SYNOPSIS
+        FreeMaestro(MaestroBase)
+                        A0.l
+
+        void FreeMaestro(struct MaestroBase *);
+
+   FUNCTION
+        This function must be invoked to release the MaestroPro after
+        usage, so it can be used by other programs.
+
+        All messages previously sent to Maestix will be replied. The
+        FIFOs are cleared, the board is reset and switched to bypass
+        mode.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+
+   RESULTS
+
+   NOTES
+        This function must be invoked in a DOS process only!
+
+   SEE ALSO
+        AllocMaestro()
+
+   BUGS
+
+maestix.library/GetStatus                           maestix.library/GetStatus
+
+   NAME
+        GetStatus -- Returns the current board status (V35)
+
+   SYNOPSIS
+        Status = GetStatus(MaestroBase,InfoType)
+         D0.l                  A0.l      D0.l
+
+        ULONG GetStatus(struct MaestroBase *,ULONG);
+
+   FUNCTION
+        The status that corresponds to the InfoType will be returned.
+
+        Note that the status is just a snapshot of the situation that
+        was present on invocation time, and might have changed in the
+        meantime.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+        InfoType -- type code (MSTAT_...) of the desired status value.
+
+   RESULTS
+        Status -- the result of the status query.
+
+   NOTES
+        The following info types are existing:
+
+        MSTAT_TFIFO -- (ULONG) status of the transmitter FIFO
+                        - FIFO_Off     -> transmitter is stopped
+                        - FIFO_Running -> transmission is running
+                        - FIFO_Error   -> an error has occured
+                                          since the last query
+
+        MSTAT_RFIFO -- (ULONG) status of receiver FIFO
+                        - FIFO_Off     -> receiver is stopped
+                        - FIFO_Running -> receiver is running
+                        - FIFO_Error   -> an error has occured
+                                          since the last query
+
+        MSTAT_Signal -- (BOOL) checks if there is a signal at the
+                        current INPUT. FALSE if there is no signal.
+
+        MSTAT_Emphasis -- (BOOL) returns TRUE if the input signal
+                        has been recorded using emphasis.
+
+        MSTAT_DATsrc -- (BOOL) returns TRUE if the data source is
+                        marked to be a DAT or DCC recorder.
+
+        MSTAT_CopyProh -- (BOOL) returns TRUE if the source requests
+                        a copy prohibition. Note that due to hardware
+                        limitations, it is not possible to find out
+                        if the source is the original (so the stream
+                        may be recorded once) or already a copy (so
+                        the stream must not be recorded). Also note that
+                        it is the client's responsibility to prohibit
+                        recording the stream if this flag is set.
+
+        MSTAT_Rate -- (ULONG) returns the sample rate at the input.
+
+        MSTAT_UDB -- (UBYTE) [V37] returns the current UDBs.
+
+   SEE ALSO
+
+   BUGS
+maestix.library/ReadPostLevel                   maestix.library/ReadPostLevel
+
+   NAME
+        ReadPostLevel -- Reads the level after realtime FX (V41)
+
+   SYNOPSIS
+        level = ReadPostLevel(MaestroBase, Tags)
+        D0.l                     A0.l      A1.l
+
+        ULONG ReadPostLevel(struct MaestroBase *, struct TagItem *);
+
+        level = ReadPostLevelTags(MaestroBase, Tag1, ...)
+
+        ULONG ReadPostLevelTags(struct MaestroBase *, ULONG, ...);
+
+   FUNCTION
+        This function returns the absolute value of the peak amplitude
+        after realtime FX have been applied to the stream. The peak
+        amplitude is cleared after invocation.
+
+        You must activate the level meter using MTAG_PostLevel,TRUE
+        on StartRealtime(). Otherwise the level will always be zero.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+        Tags -- Reserved for future use. Provide NULL or a pointer to
+                TAG_DONE.
+
+   RESULTS
+        level -- The level of both channels. The upper word contains
+                the level of the right channel, the lower word
+                contains the level of the left channel. The level is
+                unsigned and in a range between 0..32768.
+
+   NOTES
+
+   SEE ALSO
+        StartRealtime()
+
+   BUGS
+
+maestix.library/ReceiveData                       maestix.library/ReceiveData
+
+   NAME
+        ReceiveData -- Receives samples into a message (V35)
+
+   SYNOPSIS
+        ReceiveData(MaestroBase, DataMessage)
+                       A0.l         A1.l
+
+        void ReceiveData(struct MaestroBase *, struct DataMessage *);
+
+   FUNCTION
+        Recording is started, and the recorded samples are collected
+        in the data messages that are provided.
+
+        The client provides a DataMessage structure with a reply port,
+        a pointer to a data buffer, and the size of this buffer. It is
+        recommended to use at least two DataMessage buffers, and to
+        use Fast RAM for the buffer.
+
+        All DataMessages are queued internally. After a buffer has
+        been filled with samples, it is replied back to the client,
+        and the next buffer in the queue is used. The client can
+        now extract the samples from the buffer, and then use
+        ReceiveData() to recycle the DataMessage and put it back into
+        the queue again.
+
+        If the current buffer is completely filled, and there are no
+        more messages in the queue, the receiver is stopped, and an
+        error is reported.
+
+        The buffer is filled with signed words. The first word belongs
+        to the left channel, the second to the right, and so on.
+
+        By using the ExtDataMessage structure, you can provide these
+        flags:
+
+           EDMNF_MONO   The buffer will be filled with mono data only.
+                        The left and right channel is mixed to one
+                        word to do so.
+
+           EDMNF_DUAL   There are separate buffers for the left and
+                        right channels. edmn_BufPtrR points to the
+                        buffer for the right channel.
+
+        The best performance is reached when using the standard buffer
+        type with interleaved left and right samples.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+        DataMessage -- DataMessage structure to a system message with
+                a pointer to a buffer space for incoming data. Since
+                V40, an ExtDataMessage structure is accepted as well.
+
+   RESULTS
+
+   NOTES
+        The mn_Length field must be correctly initialized!
+
+        The buffer space must be in public memory and should be in
+        Fast RAM. The buffer address must be longword aligned.
+
+        Up to V40.00 (inclusive), the buffer length must be a multiple
+        of 1024 bytes. This restriction has been removed in later
+        versions of the library.
+
+        A realtime FX must be stopped before!
+
+   SEE ALSO
+        TransmitData(), FlushReceive(), StopRealtime()
+
+   BUGS
+maestix.library/SetMaestro                         maestix.library/SetMaestro
+
+   NAME
+        SetMaestro -- Sets the MaestroPro parameters (V35)
+
+   SYNOPSIS
+        SetMaestro(MaestroBase, Tags)
+                       A0.l     A1.l
+
+        void SetMaestro(struct MaestroBase *, struct TagItem *);
+
+        SetMaestroTags(MaestroBase, Tag1, ...)
+
+        void SetMaestroTags(struct MaestroBase *, ULONG, ...);
+
+   FUNCTION
+        The board parameters are changed according to the provided tags.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro()
+        Tags -- Tag list with the changes to be done
+
+   RESULTS
+
+   TAGS
+        MTAG_Input -- (ULONG) selects the input to be used:
+                        - INPUT_STD -> The configured standard input
+                        - INPUT_OPTICAL -> Optical input
+                        - INPUT_COAXIAL -> Coaxial input
+                        - INPUT_SRC48K -> Internal 48kHz source
+                    Note that INPUT_STD uses the standard input as defined
+                    by SetMstx. The jumper setting on the MaestroPro board
+                    cannot be detected by software.
+
+        MTAG_Output -- (ULONG) selects the data source for the output:
+                        - OUTPUT_BYPASS -> Input signal is directly
+                            passed through to the output.
+                        - OUTPUT_INPUT -> Input signal is re-encoded
+                            by the MaestroPro hardware. It permits to
+                            live change the CSBs without involving the CPU.
+                        - OUTPUT_FIFO -> Outputs the data from the
+                            transmission FIFO.
+                    For playback, switch to OUTPUT_FIFO!
+
+        MTAG_SetCSB -- (ULONG) Custom Channel Status Bits to be used for
+                    the output signal. Usually the maestix.library takes
+                    care for setting the correct CSBs. Use this tag only
+                    if you know what you are doing.
+
+        MTAG_SetUDB -- (ULONG) Custom User Data Bits to be used for the
+                    output signal. Usually these bits are ignored by
+                    consumer equipment, so there is no need to use this
+                    tag unless you know what you are doing.
+
+        MTAG_Studio -- (BOOL) If TRUE, the Channel Status Bits are
+                    encoded in "Studio Mode". Consumer equipment usually
+                    cannot handle this mode, so the default is FALSE.
+
+        MTAG_CopyProh -- (ULONG) Sets the output copy prohibition mode:
+                        - CPROH_OFF: No copy protection, stream can be
+                          copied without limitations.
+                        - CPROH_ON: Copy prohibition is requested, but
+                          the stream is marked as original. It can be
+                          recorded, but it will not be possible to make
+                          a digital copy of this record.
+                        - CPROH_PROHIBIT: Copy prohibition is requested,
+                          and the stream is marked as copy. The stream
+                          cannot be recorded.
+                        - CPROH_INPUT: Copy prohibition is set according
+                          to the input signal.
+                    Note that copy prohibition solely bases on flags in
+                    the Channel Status Bits, and requires the receiver
+                    to respect those bits. Also note that in some
+                    countries it is forbidden by law to circumvent copy
+                    protection measures.
+
+        MTAG_Emphasis -- (ULONG) Select the output signal emphasis.
+                        - EMPH_OFF -> no emphasis (default)
+                        - EMPH_ON / EMPH_50us -> 50/15us emphasis
+                        - EMPH_INPUT -> as set in the input signal
+                    In studio mode, two additional modes are available:
+                        - EMPH_CCITT -> CCITT J.17 emphasis
+                        - EMPH_MANUAL -> Manual emphasis
+                    Emphasis is rarely used in consumer product ranges,
+                    so it should be turned off unless you know what you
+                    are doing.
+
+        MTAG_Source -- (ULONG) Select the source category of the output
+                    signal:
+                        - SRC_DAT -> DAT/DCC (default)
+                        - SRC_CD -> Compact Disc
+                        - SRC_DSR -> Digital Satellite Radio
+                        - SRC_ADCONV -> A/D Converter
+                        - SRC_INSTR -> Instrument
+                        - SRC_INPUT -> DAT or CD (like input)
+                    Note that only the source category is selected here,
+                    but not the sampling rate.
+
+        MTAG_Rate -- (ULONG) selects the sampling rate.
+                        - RATE_48000 -> 48kHz (default)
+                        - RATE_44100 -> 44.1kHz
+                        - RATE_32000 -> 32kHz
+                        - RATE_48000MANU -> 48kHz manual
+                        - RATE_INPUT -> like input source
+                    Note that this is only the sampling rate flag that is
+                    encoded in the output signal. It must match the actual
+                    sampling rate that is used, otherwise the receiver may
+                    not be able to decode the signal. For this reason,
+                    RATE_INPUT should be used (and should have been the
+                    default).
+
+        MTAG_Validity -- (BOOL) TRUE if the output signal is valid (which
+                    is the default), FALSE otherwise. This flag might be
+                    ignored by some consumer range receivers.
+
+        MTAG_ResetUDB -- If this tag is present, UDBs are reset and will
+                    not be sent in the output stream.
+
+        MTAG_ResetLSA -- [V37] If present, the Local Sample Address is
+                    reset. It only plays a role in studio equipment though.
+
+   NOTES
+        Note that MTAG_Rate only selects the sampling rate that is
+        transmitted in the outgoing signal's Channel Status Bits. It
+        does not actually select a sampling rate!
+
+        The MaestroPro is only capable of generating an 48kHz rate by
+        itself (INPUT_SRC48K), and otherwise relies on the sampling
+        rate that is currently present at the selected input. If a
+        different rate than 48kHz is needed, it must be provided at
+        the selected input.
+
+        If the input or output is actually changed via MSTAG_Input
+        and/or MSTAG_Output, this function will wait for the configured
+        DAT delay time. Note that this delay might be up to 30 seconds.
+        The client should be able to cope with that delay.
+
+   SEE ALSO
+
+   BUGS
+maestix.library/StartRealtime                   maestix.library/StartRealtime
+
+   NAME
+        StartRealtime -- Starts realtime FX (V38)
+
+   SYNOPSIS
+        StartRealtime(MaestroBase, Tags)
+                         A0.l      A1.l
+
+        void StartRealtime(struct MaestroBase *, struct TagItem *);
+
+        StartRealtimeTags(MaestroBase, Tag1, ...)
+
+        void StartRealtimeTags(struct MaestroBase *, ULONG, ...);
+
+   FUNCTION
+        This function starts a realtime effect. Prior to that, the
+        desired input and OUTPUT_FIFO should be selected via
+        SetMaestro().
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+        Tags -- TagList containing effect parameters, or NULL.
+
+   RESULTS
+
+   TAGS
+        MTAG_Effect -- (ULONG) Selects the desired effect. If this
+                        tag is not present, RFX_Bypass is used. See
+                        include file for available effects.
+        MTAG_CustomCall -- (APTR) pointer to a custom effect routine.
+        MTAG_PostLevel  -- (BOOL) [V41] TRUE turns on level metering
+                        of the output signal (after realtime FX).
+                        It requires some more CPU power, so the default
+                        is FALSE.
+
+        The following parameters depend on the selected effect:
+
+        MTAG_A0 -- (APTR) effect parameter that is present in A0
+        MTAG_A1 -- (APTR) effect parameter that is present in A1
+        MTAG_D2 -- (ULONG) effect parameter that is present in D2
+        MTAG_D3 -- (ULONG) effect parameter that is present in D3
+
+   NOTES
+        The MTAG_CustomCall callback SHOULD be written in highly optimized
+        assembly language. It is executed in an interrupt handler, so it
+        MUST NOT use any library calls or other time-consuming functions.
+
+        The callback gets these parameters:
+
+                -> D0 -- (WORD) left sample
+                -> D1 -- (WORD) right sample
+                -> D2 -- (ULONG) MTAG_D2 value
+                -> D3 -- (ULONG) MTAG_D3 value
+                -> D6 -- Scratch register, may be changed
+                -> D7 -- Scratch register, may be changed
+                -> A0 -- (APTR) MTAG_A0 value
+                -> A1 -- (APTR) MTAG_A1 value
+                -> A2 -- Return address after processing.
+
+        The results are:
+
+                <- D0.w -- (WORD) new left sample
+                <- D1.w -- (WORD) new right sample
+
+        The callback returns by "JMP (A2)", it MUST NOT return by RTS!
+
+        The registers D2-D5 and A0-A7 MUST NOT be changed by the callback.
+
+        D6 and D7 are the only registers that can be left modified. Do not
+        assume any usable values in these registers. Especially do not
+        assume that the values in D6 and D7 are kept between invocations
+        of your callback.
+
+        The effect routine must be in MEMF_PUBLIC memory. Note that a task
+        must not be necessarily running in MEMF_PUBLIC memory!
+
+        If the effect routine is too slow on the used processor, the
+        realtime FX will stop automatically after a FIFO overflow.
+        MSTAT_TFIFO and MSTAT_RFIFO will then report a FIFO_Error. However
+        the realtime FX callback is executed in an interrupt, so it may
+        slow down the system dramatically, up to a state where it is
+        almost inoperable. Other time critical interrupts may be executed
+        too late, so realtime FX may interfere with serial ports, network
+        cards, and other time-critical stuff.
+
+   SEE ALSO
+        StopRealtime()
+
+   BUGS
+maestix.library/StopRealtime                     maestix.library/StopRealtime
+
+   NAME
+        StopRealtime -- Stops the realtime FX (V38)
+
+   SYNOPSIS
+        StopRealtime(MaestroBase)
+                          A0.l
+
+        void StopRealtime(struct MaestroBase *);
+
+   FUNCTION
+        This function immediately stops a realtime effect that has been
+        previously started.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+
+   RESULTS
+
+   NOTES
+        Before using TransmitData() or ReceiveData(), a currently running
+        realtime effect must be stopped by this function!
+
+   SEE ALSO
+        StartRealtime()
+
+   BUGS
+maestix.library/TransmitData                     maestix.library/TransmitData
+
+   NAME
+        TransmitData -- Transmits data from a message (V35)
+
+   SYNOPSIS
+        TransmitData(MaestroBase, DataMessage)
+                        A0.l          A1.l
+
+        void TransmitData(struct MaestroBase *, struct DataMessage *)
+
+   FUNCTION
+        Transmission is started, and the samples in the provided
+        data messages are played back.
+
+        The client provides a DataMessage structure with a reply port,
+        a pointer to a data buffer, and the size of this buffer. It is
+        recommended to use at least two DataMessage buffers, and to
+        use Fast RAM for the buffer.
+
+        All DataMessages are queued internally. After all samples of a
+        buffer have been played, it is replied back to the client,
+        and the next buffer in the queue is used. The client can
+        now fill the buffer with new samples, and then use
+        TransmitData() to put the DataMessage back into the queue again.
+
+        If the current buffer is completely played back, and there are
+        no more messages in the queue, the transmitter is stopped, and
+        an error is reported.
+
+        The buffer is expected to contain signed words. The first word
+        belongs to the left channel, the second to the right, and so on.
+
+        By using the ExtDataMessage structure, you can provide these
+        flags:
+
+           EDMNF_MONO   The buffer is filled with mono data only.
+                        It is sent to both the left and right channel.
+
+           EDMNF_DUAL   There are separate buffers for the left and
+                        right channels. edmn_BufPtrR points to the
+                        buffer for the right channel.
+
+        The best performance is reached when using the standard buffer
+        type with interleaved left and right samples.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+        DataMessage -- DataMessage structure to a system message with
+                a pointer to a buffer space containing playback data. Since
+                V40, an ExtDataMessage structure is accepted as well.
+
+   RESULTS
+
+   NOTES
+        The mn_Length field must be correctly initialized!
+
+        The buffer space must be in public memory and should be in
+        Fast RAM. The buffer address must be longword aligned.
+
+        Up to V40.00 (inclusive), the buffer length must be a multiple
+        of 1024 bytes. This restriction has been removed in later
+        versions of the library.
+
+        A realtime FX must be stopped before!
+
+   SEE ALSO
+        ReceiveData(), FlushTransmit(), StopRealtime()
+
+   BUGS
+maestix.library/UpdateRealtime                 maestix.library/UpdateRealtime
+
+   NAME
+        UpdateRealtime -- Changes RealtimeFX parameters at run-time [V41]
+
+   SYNOPSIS
+        UpdateRealtime (MaestroBase, Tags)
+                           A0.l      A1.l
+
+        void UpdateRealtime (struct MaestroBase *, struct TagItem *);
+
+        UpdateRealtimeTags (MaestroBase, Tag1, ...)
+
+        void UpdateRealtimeTags (struct MaestroBase *, ULONG, ...);
+
+   FUNCTION
+        The parameters of a running realtime FX are changed. The values of
+        non-provided tags remain untouched.
+
+   INPUTS
+        MaestroBase -- MaestroBase structure from AllocMaestro().
+        Tags -- Tags (see below)
+
+   RESULTS
+
+   TAGS
+        MTAG_A0 -- (APTR) new value for the A0 parameter
+        MTAG_A1 -- (APTR) new value for the A1 parameter
+        MTAG_D2 -- (ULONG) new value for the D2 parameter
+        MTAG_D3 -- (ULONG) new value for the D3 parameter
+
+   NOTES
+        The effect itself cannot be changed.
+
+        The changes apply almost immediately, so be careful when changing
+        pointers.
+
+   SEE ALSO
+        StartRealtime(), StopRealtime()
+
+   BUGS
+

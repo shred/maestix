@@ -1,0 +1,1379 @@
+@database Maestix.guide
+@author "Richard Körber"
+@(c) "1995-99 Richard Körber"
+@$VER: maestix.guide V41.50 (15.5.1999)
+@wordwrap
+
+@Node Main "Maestix: Table of Contents"
+
+                                    __ _______  /
+                           /\\/\\ /\\ /_ (_  | · \\/
+                          /    X--\\\\____) | | /\\
+                         /    /              /
+
+
+
+                          -- TABLE OF CONTENTS --
+
+
+        1.     @{" Introduction       " link Introduction}  how this driver was created
+        1.1    @{"   Features         " link Features}  of this driver
+        2.     @{" Copyright          " link Copyright}  and distribution
+        2.1    @{"   Known Bugs       " link Bugs}  and how to work around them
+        2.2    @{"   History          " link History}  all the changes
+        2.3    @{"   Future           " link Future}  what's planned?
+        3.     @{" Installation       " link Install}  of the library
+        3.1    @{"   DAT Delay        " link Delay}  what is it good for?
+        4.     @{" Shell-Tools        " link Shell}  the provided shell tools
+        4.1    @{"   SetMstx          " link SetMstx}  change settings
+        4.2    @{"   AllocMstx        " link AllocMstx}  allocate and free the board
+        4.3    @{"   MaestroPEG       " link MaestroPEG}  play back MPEG files
+        5.     @{" Usage              " link Usage}  of the library
+        5.1    @{"   Allocation       " link Allocate}  of the sound board
+        5.2    @{"   Setup            " link SetModus}  of the input, output etc
+        5.3    @{"   Status Query     " link GetStatus}  of signals etc
+        5.4    @{"   Data Transfer    " link MsgMode}  transmit and receive
+        6.     @{" Hands On           " link Realisation}  and more details
+        6.1    @{"   Bit Manipulation " link Bitmani}  of the control bits
+        6.1    @{"   Transmission     " link Senden}  of audio data
+        6.2    @{"   Reception        " link Empfangen}  of audio data
+        6.3    @{"   Realtime Proc.   " link RealtimeVB}  full duplex processing
+        6.4    @{"   Realtime FX      " link RealtimeFX}  realtime effects
+        6.4.1  @{"    RFX_Muting      " link RFX_Muting}  silence
+        6.4.2  @{"    RFX_Bypass      " link RFX_Bypass}  passhtrough
+        6.4.3  @{"    RFX_ChannelSwap " link RFX_ChannelSwap}  swap left <-> right
+        6.4.4  @{"    RFX_LeftOnly    " link RFX_LeftOnly}  mute right
+        6.4.5  @{"    RFX_RightOnly   " link RFX_RightOnly}  mute left
+        6.4.6  @{"    RFX_Mono        " link RFX_Mono}  mix to mono
+        6.4.7  @{"    RFX_Surround    " link RFX_Surround}  surround channel
+        6.4.8  @{"    RFX_Volume      " link RFX_Volume}  change volume
+        6.4.9  @{"    RFX_Karaoke     " link RFX_Karaoke}  suppress voice
+        6.4.10 @{"    RFX_Foregnd     " link RFX_Foregnd}  surround foreground
+        6.4.11 @{"    RFX_Spatial     " link RFX_Spatial}  spatial sound
+        6.4.12 @{"    RFX_Echo        " link RFX_Echo}  echo effect
+        6.4.13 @{"    RFX_Mask        " link RFX_Mask}  quantisize
+        6.4.14 @{"    RFX_Offset      " link RFX_Offset}  DC offset
+        6.4.15 @{"    RFX_Robot       " link RFX_Robot}  gate effect
+        A.     @{" FAQ                " link FAQ}  and answers
+        B.     @{" Credits            " link Credits}  kudos to...
+
+@EndNode
+@Node Introduction "Maestix: Introduction"
+
+The MaestroPro was a sound card with excellent features for lossless
+audio processing, and even for data backups.
+
+Sadly, the choice of software was limited to a few tools that actually
+made use of the hardware. Unlike the Toccata sound card, the
+MaestroPro had no driver that would permit to use it in all kind of
+audio software. It also seemed that the creator, MacroSystem, never
+intended to publish such a driver.
+
+I wanted help out and write a driver library for this beautiful board.
+However, MacroSystem also didn't want to provide me any hardware
+documentation. I found out that I had no other choice than to reverse
+engineer the hardware.
+
+First I organized the data sheets of the two Yamaha digital audio
+interface chips. It wasn't easy because in 1994, there were no such
+information in the Internet, so I had to resort to libraries and other
+sources.
+
+Then I searched for register addresses. When I found them, it just
+took some more measurements to discover the bit allocation. With some
+more experiments, I finally found out how the board worked, and how
+I could use it.
+
+This library is the result of countless experiments. Over the years,
+it turned out to be mature and stable, even under stressy conditions.
+It eventually became the de-facto semi-official driver for this board.
+
+@EndNode
+@Node Features "Maestix: Features"
+
+These are the features of the maestix.library:
+
+· Transmitting and receiving digital audio data, losslessy, with
+  two channels and a sampling rate of up to 48kHz.
+· Full duplex: simultaneous sending and receiving of audio data
+· Requires Kickstart 2.04 or higher
+· Supports S/P-DIF (consumer) and AES/EBU (professional studio) mode
+· Can send and receive User Data Bits
+· 15 integrated realtime audio effects, custom effects are possible
+· Supports all major features of the MaestroPro sound card.
+· No knowledge about the hardware or digital audio signals required.
+· Supports unlimited data buffers in a queue
+· Multitasking friendly design
+· Supports virtual memory
+· No (known ;^) MuForce and Mungwall hits
+· Includes all development files for Assembler and C
+· 100% system conformous, no dirty "hardware hacks"
+· Tested on 68040, 68060 and CyberPPC
+· Fully Open Source (GNU GPLv3)
+
+@EndNode
+@Node Copyright "Maestix: Copyright"
+
+@{B} COPYRIGHT @{UB}
+@{B}===========@{UB}
+
+Maestix is © 1997-2021 Richard 'Shred' Körber.
+
+This MaestroPro driver is based on reverse engineering.
+
+Maestix is neither supported nor endorsed by MacroSystem. Please
+refrain from asking them for support.
+
+
+@{B} LICENSE @{UB}
+@{B}---------@{UB}
+
+Maestix is Open Source Software. It is distributed under the
+GNU General Public License v3.
+
+You should find a LICENSE.txt file in this package, or on the internet
+at http://www.gnu.org/licenses/gpl.html .
+
+You can use the software for free. However, if you use Maestix in a
+commercial product, I would love to get a free lifetime license of your
+work in return.
+
+
+@{B} SOURCE CODE @{UB}
+@{B}-------------@{UB}
+
+You can find the source code at https://maestix.shredzone.org .
+
+If you like to contribute, feel free to open an issue or send a pull
+request.
+
+
+@{B} DISCLAIMER @{UB}
+@{B}------------@{UB}
+
+You are using the program "as is", with all flaws, and on your
+own risk! There is no warranty expressed or implied that the software
+is bug free or fit for your purpose.
+
+In some countries it is forbidden by law to circumvent effective
+copy protection measures. It is your responsibility to comply with
+all applicable laws.
+
+@EndNode
+@Node Bugs "Maestix: Bugs"
+
+These Maestix bugs are known:
+
+· Maestix strongly interferes with fast data transmissions on the
+  internal serial port. This is hardware related and cannot be
+  mitigated. I recommend to use a fast processor, or an external
+  serial card (like e.g. MultiFace II).
+
+· In rare cases, channels are swapped on realtime FX.
+
+· Some example programs will hang if the board is already allocated.
+  The problem is a deadlock while waiting for a process to end. It
+  is not an issue with the library, but purely caused by personal
+  lazyness. :)
+
+@EndNode
+@Node History "Maestix: History"
+
+V41.50 (2021-05-19)
+        · Hopefully fixed the "noise" bug
+
+V41.40 (1999-05-15)
+        · Removed nearly all Disable() calls. Those remaining are REALLY
+          necessary. But even there, the disabled state time was reduced
+          to 31µs in the worst case, which is still clearly below the 250µs
+          allowed by Commodore. :-)
+        · New synchronization routines: faster and more robust.
+        · Uh! For several YEARS I forgot to enable PhxAss' branch optimizer.
+          This optimizer gained about 400 byte!
+        · Altogether, 924 byte were gained compared to V41.30!
+        · MaestroPEG now shows MP3 tags
+
+V41.30 (1998-02-21)
+        · Added Dual-Mode (minor changes to the ExtDataMessage structure)
+        · Added MaestroPEG
+
+V41.20 (1997-11-28)
+        · Bugfix: AES/EBU rate was always set to 48KHz
+        · Used semaphores -> more multitasking friendly
+        · 68020+ optimized, 68000 release upon request only
+        · There are no "old" MPro's, but only one board where two chips
+          were actually seated into the wrong sockets! The V37.10 workaround
+          has thus been removed, and allocation of non-maestix-software
+          is now detected again.
+
+V41.10 (1997-10-17)
+        · Clean reset of the encoder chip
+        · Bugfix: channels were swapped on realtime fx sometimes
+
+V41.00 (1997-09-29)
+        · Added ReSample effect
+        · Added LevelMeter to realtime path
+        · Improved Foregnd quality
+        · Robot now also allows an Open/Close value of 0
+        · No chip RAM access to Execbase any more -> speedup, especially
+          on Draco
+
+V40.20 (1997-09-22)
+        · Fixed 68040/060 timing problems, the CSB bits were wrong
+          sometimes.
+        · AES/EBU can now be used as default
+        · Reworked SetMstx and Installer-Script accordingly
+
+V40.10 (1997-09-12)
+        · Now also buffers <1024 byte can be used
+        · Added extended audio data message
+        · Buffer space can now also be mono
+        · Bugfix: Robot fx didn't work properly
+        · Minor 68060 improvements
+        · Bugfix: no transmission if switched to OUTPUT_FIFO *after*
+          calling TransmitData().
+
+V40.00 (1997-03-03)
+        · Minor cleanups
+        · CopyBack routines were superfluous and thus removed
+        · Added Robot realtime FX
+        · Maestix now automatically falls back to the internal rate
+          generator (SRC48K) if there is no valid input signal when
+          starting TransmitData().
+
+V39.30 (1996-06-15)
+        · FlushTransmit() and FlushReceive() deleted A4 contents
+          [Teijo Kinnunen]
+
+V39.20 (1996-01-08)
+        · The noises that occured when finishing/breaking a data
+          transmission are now muted.
+        · FreeMstx now only frees allocations made by AllocMstx.
+        · maestix.library is now prepared for the new MacroSystem
+          sound library.
+
+V39.15 (1995-08-23)
+        · Some minor improvements
+
+V39.10 (1995-08-16)
+        · Bugfix: TransmitData() threw a FIFO error directly after
+          starting the transmission [Thomas Wenzel, Daniel Wicke]
+        · Missed to write the DAT-Delay chapter
+
+V39.00 (1995-06-26)
+        · Rewrote AllocMstx, FreeMstx. Now support QUIET.
+        · Rewrote SetMstx. Now also supports DELAY, QUIET and FORCE
+        · Added DAT-Delay. Maestix now waits until the DAT recorder
+          settled to the new sampling rate.
+        · Three new realtime FX: Echo, Mask and Offset
+
+V38.10 (1995-06-19)
+        · Real C include files are available now
+        · Reworked the autodocs
+
+V38.00 (1995-03-29)
+        · Older MPros show problems with synchronizing the sender
+          [Thomas Wenzel]
+        · Added realtime fx
+        · Added 11 realtime fx
+
+V37.30 (1995-03-18)
+        · Bugfix in AES/EBU bits
+
+V37.20 (1995-03-15)
+        · Added ResetLSA
+
+V37.10 (1995-03-15)
+        · Older MPros show some problems with the status registers.
+          [Thomas Wenzel] --> See V41.20
+        · Bugfix: copy protection stated were switched
+
+V37.00 (1995-03-13)
+        · Removed a bug in the C include file
+        · UDBs can be read now
+        · Added AllocMstx and FreeMstx
+
+V36.20 (1995-03-03)
+        · Further optimizations
+        · Translated the autodocs into English
+        · Bugfix in the surround demo: no message was sent to the
+          transmitter on startup
+
+V36.10 (1995-03-01)
+        · Dramatically optimized some time critial program parts
+        · Removed an error in GetStatus (MSTAT_TFIFO and MSTAT_RFIFO):
+          error was not returned correctly
+        · 68040-CopyBack-Proof
+
+V36.00 (1995-02-25)
+        · Added SetMstx
+        · Added FlushTransmit() and FlushReceive()
+
+V35.10 (1995-02-25)
+        · Correctly handles when the selected input has no signal
+        · Added an installer script
+
+V35.00 (1995-01-27)
+        · Rewrote the library from scratch new, since the old version
+          had a lot of conceptional flaws.
+        · UDBs are supported
+        · Studio mode (AES/EBU) is supported now
+
+V34.30 (1995-01-05)
+        · Bugfix: channels were swapped sometimes
+
+V34.20 (1994-12-31)
+        · Optimized the interrupt servers
+        · Bugfix: system hang sometimes due to an interrupt bug
+
+V34.10 (1994-12-29)
+        · Removed all known bugs and enforcer hits
+
+V34.00 (1994-12-21)
+        · First version
+
+@EndNode
+@Node Future "Maestix: Future"
+
+Well, that's it, more or less...
+
+In 1999, after five years of active programming, the library is now
+feature complete and mature. I also don't expect that many people
+are still having a MaestroPro board in active use. So don't expect
+too many updates in the future.
+
+However, as Maestix is Open Source Software now, feel free to
+contribute.
+
+@EndNode
+@Node Install "Maestix: Installation"
+
+maestix.library requires at least an 68020 processor. You can build
+an 68000 version yourself from the source code. However, shoveling the
+data between RAM and the MaestroPro consumes some CPU power, so there
+is not much left for the fun part on an 68000 system.
+
+For installation, a Commodore installer is provided. It takes care for
+copying the files to the correct target directories. The installer also
+asks for the default input (optical or coaxial), and puts a SetMstx
+line into the User-Startup.
+
+But of course you can also install everything by hand. ;)
+
+@EndNode
+@Node Delay "Maestix: DAT Delay"
+
+Some DAT recorders (and other signal receivers) may take a while to
+adapt to a different sampling rate. In the meantime, the output will
+be muted, so a part of the playback is missing.
+
+The library takes care for waiting for a short while after the input
+or output signal has changed, allowing the receiver to synchronize to
+the new signal. This delay can be set using the SetMstx tool.
+
+For example, the Sony DTC-690 needs approximately one second for
+synchronization.
+
+@EndNode
+@Node Shell "Maestix: Shell Tools"
+
+The Maestix package contains a few shell tools in the C: directory.
+These tools may be useful for the end user (this is you).
+
+@EndNode
+@Node SetMstx "Maestix: SetMstx"
+
+This tool adjusts the default parameters of the maestix.library. The
+installer adds the invocation to the User-Startup, but you can also
+invoke it manually.
+
+These are the parameters:
+
+ INPUT=[optical|coaxial]        sets the default input. The first
+                                letter is sufficient. Usually this
+                                is the same input that is preset on
+                                the hardware via jumper. However it
+                                is not possible to read this jumper
+                                setting by software, so you need to
+                                set it manually.
+
+ DELAY=[time/ms]                sets the DAT delay. The library will
+                                wait for this time (in milliseconds)
+                                after the input or output has changed.
+                                See @{" DAT Delay " link Delay}
+
+ NOSTUDIO                       turns off studio mode by default.
+                                This is the standard setting, and
+                                it is required for most of the
+                                consumer range devices that only
+                                understand S/P-DIF.
+
+ STUDIO                         turns on studio mode by default.
+                                Use this if you connect your MaestroPro
+                                to studio equipment that supports
+                                the AES/EBU standard.
+
+ QUIET                          suppresses all output textx.
+
+ FORCE                          forces the changes even if the
+                                MaestroPro is currently in use.
+
+Example:
+
+ SetMstx INPUT=C DELAY=2000 NOSTUDIO FORCE
+
+@EndNode
+@Node AllocMstx "Maestix: AllocMstx and FreeMstx"
+
+The standard programs provided with the MaestroPro (Samplitude and
+MaestroBR) directly access the hardware. This is because the Maestix
+library is not the official MaestroPro driver.
+
+If you use Maestix while Samplitude or MaestroBR is in use, both
+drivers may interfere, causing chaos. Maestix tries to detect if
+another software is accessing the MaestroPro, but this detection
+might fail.
+
+For this reason, there is AllocMstx and FreeMstx.
+
+AllocMstx allocates the MaestroPro via Maestix, without actually
+using the hardware. It is then reserved, so other non-Maestix tools
+can use the hardware exclusively. If the board is already allocated,
+AllocMstx will return a returncode 10.
+
+FreeMstx releases the MaestroPro that has been allocated by
+AllocMstx before. It is safe to invoke FreeMstx even if AllocMstx
+has failed before.
+
+Both tools need no parameters. You can optionally provide a QUIET
+parameter, to suppress all output to stdout.
+
+To start an original program, you can use a script like this:
+
+--------------------------- >8 ------ CUT HERE -----------------------
+
+CD Work:Sampling               ; or any other directory
+FailAt 20
+C:AllocMstx QUIET
+IF NOT WARN
+  Samplitude-MS >NIL:          ; invoke the original tool
+  C:FreeMstx QUIET
+ELSE
+  C:RequestChoice >NIL: "Samplitude" "MaestroPro is in use!" "Okay"
+ENDIF
+
+---------------------------- 8< -------- CUT HERE --------------------
+
+@EndNode
+@Node MaestroPEG "Maestix: MaestroPEG"
+
+MaestroPEG is a simple MPEG audio player. It uses the mpega.library by
+Stéphane Tavenard. The decoded audio samples are directly pushed to the
+MaestroPro board, saving CPU power. Playing back a MPEG1 Layer III
+file in CD quality should be possible on an 68040/50 already. On an
+68060, the Amiga can still be operated while playing back music.
+
+This is a beta release.
+
+FILE/A,Q=QUALITY/K/N,PRI=TASKPRI/K/N,INFO/S,NOTIME/S,NOPROH/S
+
+Options are:
+
+ FILE/A                         File to be played back.
+
+ Q=QUALITY/K/N                  Playback quality, from 0 (low) to 2 (high).
+                                Default is 2.
+
+ PRI=TASKPRI/K/N                Playback task priority. Default is 20.
+
+ INFO/S                         Show information about the MPEG file.
+
+ NOTIME/S                       Don't show the time during playback.
+
+ NOPROH/S                       Usually the copy prohibition from the MPEG
+                                file is respected. If this causes trouble
+                                with your DA converter, you can disable the
+                                copy prohibition with this option.
+
+Playback can always be stopped by pressing CTRL-C.
+
+The mpega.library can be found in the AmiNet: util/libs/mpega_library.lha
+
+@EndNode
+@Node Usage "Maestix: Usage of the Library"
+
+The following sections will explain how the library is constructed, and
+how the functions can be used.
+
+@EndNode
+@Node Allocate "Maestix: Allocation"
+
+The first thing that needs to be done is to allocate the MaestroPro card
+by the library. It prevents that multiple programs access the sound card
+simultaneously.
+
+To do so, use the AllocMaestro() function. It needs a pointer to a tag
+list. However, there are no tags at the moment, so you need to pass
+either a NULL or a TAG_DONE. In future releases there may be tags that
+(for instance) select one of multiple MaestroPro sound boards, or
+provide global parameters.
+
+The result is a pointer to a private MaestroBase structure. It must be
+passed to the other functions of the library. If NULL is returned
+instead, there was either no MaestroPro board found, or it is currently
+in use by another program.
+
+After usage, the board is released via FreeMaestro(). It takes the
+MaestroBase pointer as only parameter.
+
+There might be a problem with the original programs that were
+distributed with the MaestroPro. As these tools are not aware of the
+maestix.library, they access the sound board hardware directly. This
+might conflict with tools using the maestix.library. To prevent
+problems, the AllocMstx and FreeMstx tools permit to allocate the
+sound board before those classic programs are started.
+
+@EndNode
+@Node dummy
+@EndNode
+@Node SetModus "Maestix: Setup"
+
+After allocation, the MaestroPro is set to the required configuration.
+The SetMaestro() function serves this puropose. It receives the pointer
+to the MaestroBase, as well as a tag list of the desired changes.
+
+There are special tags to directly manipulate the Channel Status Bits:
+
+MTAG_SetCSB     (ULONG) sets the 32 Channel Status Bits (CSB) directly.
+
+MTAG_Studio     (BOOL) is TRUE if the studio mode is to be used. As
+                most consumer devices won't support this mode, it is
+                set to FALSE by default. Using this tag will reset all
+                CSBs to default values.
+
+Usually it is not a good idea to manipulate the CSBs directly.
+Maestix is doing that for you. So you should rather prefer to use the
+other tags:
+
+MTAG_CopyProh   (ULONG) defines the copy prohibition mode to be used.
+                Does not apply to studio mode. These modes are
+                available:
+
+                   CPROH_OFF    no copy prohibition. The output
+                                stream can be copied freely.
+
+                   CPROH_ON     copy is prohibited. The output
+                                stream can only be copied once.
+
+                   CPROH_PROHIBIT   copy is forbidden. It is not
+                                possible to record the output
+                                stream.
+
+                   CPROH_INPUT  use the same mode as the input
+                                stream. Note that because of
+                                technical limitations, it is not
+                                possible to differentiate the input
+                                signal between CPROP_ON and
+                                CPROH_PROHIBIT. If there is no
+                                input signal, copy prohibition will
+                                be turned off.
+
+MTAG_Emphasis   (ULONG) selects the emphasis mode:
+
+                   EMPH_OFF     no emphasis is used (default)
+
+                   EMPH_50us    a 50µs emphasis is used. This is
+                                the same as EMPH_ON.
+
+                   EMPH_INPUT   use the same emphasis as the
+                                input signal.
+
+                If studio mode is enabled, there are two more modes:
+
+                   EMPH_CCITT   CCITT J.17 emphasis
+
+                   EMPH_MANUAL  emphasis is set manually at the
+                                receiver
+
+MTAG_Source     (ULONG) category of the output signal:
+
+                   SRC_DAT      DAT/DCC device (default)
+                   SRC_CD       CD player
+                   SRC_DSR      DSR radio
+                   SRC_ADCONV   generic A/D converter
+                   SRC_INSTR    musical instrument
+                   SRC_INPUT    SRC_DAT or SRC_CD, depending on
+                                the input signal. If there is no
+                                input signal SRC_DAT is used.
+
+MTAG_Rate       (ULONG) sampling rate. Note that this tag only defines
+                the sampling rate in the CSR bits. It does not actually
+                change the sampling rate! The MaestroPro hardware is
+                only able to generate an 48kHz sampling rate itself.
+                For other rates, it is required to put a signal source
+                with that rate to the selected input. Available rates
+                are:
+
+                   RATE_48000       48kHz rate (e.g. DAT) (default)
+                   RATE_44100       44.1kHz rate (e.g. CD)
+                   RATE_32000       32kHz rate (e.g. DSR)
+                   RATE_INPUT       same rate as the input signal.
+                                    Use this if in doubt. This should
+                                    have been the default, but isn't
+                                    for backward compatibility.
+                   RATE_48000MANU   48kHz, manually adjustable (only
+                                    in studio mode!)
+
+                Note that the selected rate must always match the
+                actual sampling rate. Otherwise the receiver will
+                not be able to decode the signal.
+
+You can also control the subcode data with the following tags.
+However, consumer range devices usually ignore them.
+
+MTAG_Validity   (BOOL) TRUE if the outgoing data is valid (default)
+
+MTAG_SetUDB     (ULONG) sets the first 32 User Data Bits and enables
+                UDB generation.
+
+MTAG_ResetUDB   Reset UDB and disable UDB generation.
+
+The MaestroPro is controlled with these tags:
+
+MTAG_Input      (ULONG) selects the input mode:
+
+                   INPUT_STD      use the default input (default)
+
+                   INPUT_OPTICAL  use the optical input
+
+                   INPUT_COAXIAL  use the coaxial input
+
+                   INPUT_SRC48K   use the internal 48kHz source
+
+                IMPORTANT: After changing the input, you need to
+                reapply all the tags that are currently in the _INPUT
+                mode (CPROH_INPUT, EMPH_INPUT, SRC_INPUT, RATE_INPUT).
+                This is actually a design weakness of this library.
+
+MTAG_Output     (ULONG) selects the output mode:
+
+                   OUTPUT_BYPASS  the signal from the selected
+                                  input is directly passed through
+                                  to the output. There will also be
+                                  no bit manipulation of the
+                                  subcode bits. (default)
+
+                   OUTPUT_INPUT   the signal from the selected
+                                  input is re-encoded using the
+                                  current subcode bits, and then
+                                  passed to the output.
+
+                   OUTPUT_FIFO    the output signal is generated
+                                  from the transmit FIFO. Use this
+                                  mode for playback.
+
+@EndNode
+@Node GetStatus "Maestix: Status Query"
+
+The GetStatus() function returns the current status of the MaestroPro
+and the signal at the selected input. It needs the MaestroBase pointer
+and the status ID of the status to be queried:
+
+MSTAT_TFIFO     returns the current status of the transmit FIFO and
+MSTAT_RFIFO     receive FIFO, respectively:
+
+                   FIFO_Off     The FIFO is currently turned off.
+                                No data is being transmitted or
+                                received.
+
+                   FIFO_Running The FIFO is currently active. No
+                                error has occured.
+
+                   FIFO_Error   The transmit FIFO has underrun, or
+                                the receive FIFO has overrun. The
+                                FIFO has been stopped and the error
+                                is reported here.
+
+MSTAT_Signal    checks if there is a signal at the selected input.
+                TRUE if there is a signal, FALSE otherwise. The
+                internal INPUT_SRC48K always has a signal.
+
+MSTAT_Emphasis  returns the emphasis of the input signal. TRUE if
+                the input signal uses emphasis. The internal source
+                never uses emphasis.
+
+MSTAT_DATsrc    is TRUE if the input signal source is a DAT- or
+                DCC recorder, FALSE for all other kind of devices.
+                The internal source is always a DAT source.
+
+MSTAT_CopyProh  is TRUE if the input signal prohibits copying. Due
+                to hardware limitations, it is not possible to
+                detect if the source is the original (i.e. recording
+                is permitted) or a copy (i.e. recording is forbidden).
+                Note that Maestix only returns this flag. It is the
+                responsibility of the client to prohibit digital
+                recordings if this flag is set. The internal source
+                never prohibits copying.
+
+MSTAT_Rate      returns the input sampling rate. The internal source
+                always returns 48kHz.
+
+MSTAT_UDB       returns the current eight User Data Bits. Note that
+                due to hardware limitations, it is not possible to
+                actually evaluate the User Data Bit stream.
+
+@EndNode
+@Node MsgMode "Maestix: Data Transfer"
+
+Maestix organizes the data streams in a queue of buffer memory. A
+message is taken from the queue, then played back or filled with
+sampled, and then replied to the client. After that, the next
+message is taken from the queue. If the queue runs out of messages,
+the data transmission is aborted and a FIFO_Error is reported.
+
+The buffer should be allocated in public fast RAM, and must be
+aligned to an address that is dividable by four. Up to V40.00, the
+buffer size had to be a multiple of 1024 bytes. This limitation has
+been lifted in V40.10, but it is still recommended to use this
+size constraint for best performance.
+
+There should be at least two buffers per direction, so one buffer
+can be transmitted or received, while the other buffer is refilled
+or read by the client. It cannot hurt to use even more buffers, as
+it will increase robustness when the system is under higher load.
+
+The buffers are passed to Maestix as a Message, via TransmitData()
+or ReceiveData(). The first message will also start the playback
+or recording, respectively.
+
+After that, the client should wait for the Message to be replied,
+and then process the buffer. After that, the Message can simply
+be re-used and sent back to the queue using the same TransmitData()
+or ReceiveData() method. (It is not necessary to allocate a fresh
+buffer memory or so.)
+
+You should provide sufficient buffer space, especially on slow
+systems. Remember that a buffer of 64kByte size is processed in
+less than a third of a second. The buffer spaces do not need to
+have the same size, though.
+
+It is also recommended to do the buffer processing in a separate
+task, and use a priority between 20 and 40, so the task is also
+executed if other standard processes slow down the system. This
+way, the buffer processing is also decoupled from the main thread
+that may be slowed down by intuition or slow graphic renderings.
+
+It is also possible to dynamically create new buffers and add
+them to the queue, to make the task resilient e.g. when another
+harddisk access temporarily slows down the harddisk access time.
+When the temporal shortage is over, the newly created buffers
+can be released again, to keep memory usage low.
+
+@EndNode
+@Node Realisation "Maestix: Hands On"
+
+The next sections will describe how to use the MaestroPro in pratice.
+
+Generally there should be sufficient buffer space available. A rule
+of thumb is:
+
+        · two receiver buffers
+        · two transmitter buffers
+        · one buffer for calculation purposes
+        · maybe one buffer as reserve
+
+If you only want to receive samples, three buffers are sufficient.
+For realtime processing, it should be five or even six buffers.
+
+As the only exception, the realtime FX don't need any buffer space,
+as the samples are being processed immediately.
+
+@EndNode
+@Node Bitmani "Maestix: Bit Manipulation"
+
+Just manipulation the CSBs and UDBs of the input stream is possible
+directly on the MaestroPro hardware, without any CPU demand.
+
+To do so, just set the desired CSBs and UDBs first.
+
+After that, select the desired input source, and use OUTPUT_INPUT
+as output. The input signal is then re-encoded with the given
+subcodes.
+
+@EndNode
+@Node Senden "Maestix: Transmission"
+
+The transmission is started by sending a Message with the sample
+buffer to TransmitData(). The sample buffer needs to contain the
+samples to be played back, as 16 bit signed WORDs, with the left
+and right samples interwoven.
+
+After invoking TransmitData(), transmittion is started immediately.
+
+The Message is now transmitted, then replied to the client, and
+the next Message is taken from the transmission queue. The client
+can now refill the buffer with more sampling data, and then send
+the Message back to the queue using TransmitData().
+
+To stop the transmission, invoke FlushTransmit(). It will immediately
+stop the transmission, and reply all Messages in the queue to the
+client.
+
+Another way to stop the transmission is just to stop adding
+Messages to the queue, and wait for the queue and the FIFO to run
+empty. As soon as this happens, the FIFO will report a FIFO_Error.
+
+Unless the internal 48kHz source is used, it is recommended to check
+the MSTAT_Signal from time to time. If it becomes FALSE, the
+reference clock is not provided any more, which can result in
+synchronization problems. Transmission should then be aborted.
+
+Before starting the transmission with the first invocation of
+TransmitData(), the output should be changed to OUTPUT_FIFO. Otherwise
+the transmitted data stream will not be present at the output.
+
+@EndNode
+@Node Empfangen "Maestix: Receiving"
+
+Analog to the transmission, the receiving process is started with the
+first invocation of ReceiveData(). The buffer in the Message is filled
+with the samples from the selected input. The samples are unsigned
+16 bit WORDs, where the left and right channel are interwoven.
+
+When the buffer was filled, it is replied to the client, and the next
+Message is taken from the queue. The client can now process the
+received samples. After that, the buffer can be put to the queue
+again, using ReceiveData(). It is not necessary to clear the buffer
+memory, or allocate a fresh buffer.
+
+To immediately stop the receive process, just invoke FlushReceive().
+It will stop the receiver, and reply all pending Messages to the
+client. The client should ignore the buffer content of all buffers
+after FlushReceive() has been invoked.
+
+Another way to stop receiving is by not providing further Messages to
+the receiver queue. When the last buffer has been filled, and the
+Message replied to the client, the receive FIFO will be stopped,
+and a FIFO_Error will be reported.
+
+It is recommended to check MSTAT_Signal from time to time. If it should
+become FALSE, the input signal was lost. The receiving process should
+then be aborted.
+
+@EndNode
+@Node RealtimeVB "Maestix: Realtime Processing"
+
+Maestix permits full-duplex usage of the transmitter and receiver path.
+Just combine both the transmission and receiver parts as mentioned
+above.
+
+It is then possible to get a buffer from the receiver, process it in
+the client, and then add it to the transmitter queue for playback.
+After playback, the buffer is just added back to the receiver queue
+so it can be filled again.
+
+@EndNode
+@Node RealtimeFX "Maestix: Realtime FX"
+
+Since V38, Maestix is able to process realtime effects close to the
+MaestroPro hardware. Use StartRealtime() to start a realtime effect,
+and StopRealtime() to stop it again.
+
+Note that realtime FX cannot be combined with transmissing or
+receiving samples. If you actually need to get hand on the samples,
+you need to do the realtime processing yourself, as mentioned before.
+
+To initialize the board properly, it is recommended to use SetMaestro()
+with these tags:
+
+        - MTAG_Input    must select the actual data source. While
+                        INPUT_SRC48K can be used, it would only provide
+                        silence and is thus not very useful.
+
+        - MTAG_Output   must be set to OUTPUT_FIFO. Otherwise the
+                        realtime effect would not be audible.
+
+        - The other tags can be used as described before. However it
+                        is recommended to use the _INPUT variants of
+                        the other parameters.
+
+After that, StartRealtime() is invoked. A tag list is passed into it,
+containing the desired realtime effect, and optionally parameters:
+
+        - MTAG_Effect   selects the effect
+        - MTAG_A0       \\
+        - MTAG_A1       | effect parameters (depending on the
+        - MTAG_D2       |    effect that is selected)
+        - MTAG_D3       /
+        - MTAG_CustomCall  a pointer to a custom effect callback
+
+The realtime processing starts immediately. It can be stopped using
+StopRealtime(). If your system is too slow, it will also stop if the
+CPU power is not sufficent to process the samples in real time.
+
+These are the available effects (MTAG_Effect):
+
+        @{" RFX_Muting      " link RFX_Muting}  Mute output
+        @{" RFX_Bypass      " link RFX_Bypass}  Simple passhtrough
+        @{" RFX_ChannelSwap " link RFX_ChannelSwap}  Swap left <-> right
+        @{" RFX_LeftOnly    " link RFX_LeftOnly}  Left channel only
+        @{" RFX_RightOnly   " link RFX_RightOnly}  Right channel only
+        @{" RFX_Mono        " link RFX_Mono}  Mix to mono signal
+        @{" RFX_Surround    " link RFX_Surround}  Extract surround channel
+        @{" RFX_Volume      " link RFX_Volume}  Change volume
+        @{" RFX_Karaoke     " link RFX_Karaoke}  Extract voice channel
+        @{" RFX_Foregnd     " link RFX_Foregnd}  Surround front channel
+        @{" RFX_Spatial     " link RFX_Spatial}  Spatial effect
+        @{" RFX_Echo        " link RFX_Echo}  Echo effect
+        @{" RFX_Mask        " link RFX_Mask}  Mask or quantisize
+        @{" RFX_Offset      " link RFX_Offset}  Add a DC offset
+        @{" RFX_Robot       " link RFX_Robot}  Gate effect
+
+It is also possible to use own effect callbacks using MTAG_CustomCall.
+
+It is very important that the callback must be present in PUBLIC memory.
+It is also strongly recommended to write the callback in highly
+optimized assembler code.
+
+The callback is invoked for every single sample. This is, for a 48kHz
+samping rate, the callback will be invoked 48.000 times per second!
+
+These are the callback parameters:
+
+        -> D0 (WORD)    Left channel sample
+        -> D1 (WORD)    Right channel sample
+        -> D2 (ULONG)   MTAG_D2 parameter
+        -> D3 (ULONG)   MTAG_D3 parameter
+        -> D6 (ULONG)   scratch register for free use
+        -> D7 (ULONG)   scratch register for free use
+        -> A0 (APTR)    MTAG_A0 parameter
+        -> A1 (APTR))   MTAG_A1 parameter
+        -> A2 (APTR)    Return address
+
+The result is expected here:
+
+        <- D0 (WORD)    Processed left channel sample
+        <- D1 (WORD)    Processed right channel sample
+
+You MUST NOT change the D2-D5 and A0-A7 registers! D6 and D7 can be
+scratched though. Do not expect any useful values there on invocation.
+
+After processing the sample, the callback must return via JMP (A2).
+Do not return using RTS!
+
+EXAMPLE:
+----------------------------------- >8 -------------------------------
+Effect:         exg     d0,d1           ; swap left and right channel
+                asr     #1,d1           ; half volume on right channel
+                jmp     (a2)            ; jump back
+----------------------------------- 8< -------------------------------
+
+You can use GetStatus() to check the status of the realtime effect.
+If the CPU power is not sufficient, the transmit FIFO will underflow
+or the receive FIFO will overflow. You can check the appropriate FIFO
+state for FIFO_Error. If an error is reported, the realtime effect was
+stopped automatically.
+
+Be careful: The realtime callback is invoked in an interrupt. This
+means that you cannot use any system calls. It also means that,
+especially on slow systems, the load can become so high that the system
+becomes inoperable. It also means that other interrupt intense jobs
+(like the internal serial port) can be highly disturbed during realtime
+processing.
+
+@EndNode
+@Node RFX_Muting "Maestix: RFX_Muting"
+
+Type:           RFX_Muting
+
+Description:    Both channels are muted.
+
+Parameters:     None
+
+Formula:        L := 0
+                R := 0
+
+@EndNode
+@Node RFX_Bypass "Maestix: RFX_Bypass"
+
+Type:           RFX_Bypass
+
+Description:    Signal is passed through without change.
+
+Parameters:     None
+
+Formula:        L := L
+                R := R
+
+@EndNode
+@Node RFX_ChannelSwap "Maestix: RFX_ChannelSwap"
+
+Type:           RFX_ChannelSwap
+
+Description:    Left and right channel is swapped.
+
+Parameters:     None
+
+Formula:        L := R
+                R := L
+
+@EndNode
+@Node RFX_LeftOnly "Maestix: RFX_LeftOnly"
+
+Type:           RFX_LeftOnly
+
+Description:    Right channel is muted, left is passed through.
+
+Parameters:     None
+
+Formula:        L := L
+                R := 0
+
+@EndNode
+@Node RFX_RightOnly "Maestix: RFX_RightOnly"
+
+Type:           RFX_RightOnly
+
+Description:    Left channel is muted, right is passed through.
+
+Parameters:     None
+
+Formula:        L := 0
+                R := R
+
+@EndNode
+@Node RFX_Mono "Maestix: RFX_Mono"
+
+Type:           RFX_Mono
+
+Description:    Input stereo signal is converted to mono.
+
+Parameters:     None
+
+Formula:        L := (L+R)/2
+                R := (L+R)/2
+
+@EndNode
+@Node RFX_Surround "Maestix: RFX_Surround"
+
+Type:           RFX_Surround
+
+Description:    On simple surround schemes, the surround channel is encoded
+                as difference of the left and right channel. This effect
+                extracts the surround sound from the stereo signal.
+
+Parameters:     None
+
+Formula:        L := (L-R)/2
+                R := (L-R)/2
+
+@EndNode
+@Node RFX_Volume "Maestix: RFX_Volume"
+
+Type:           RFX_Volume
+
+Description:    Change the volume of each channel individually. There is no
+                clipping, this is, for volumes > 100% the sound may become
+                distorted.
+
+Parameters:     MTAG_D2   (UWORD) left volume
+                MTAG_D3   (UWORD) right volume
+
+                volume        0 -> mute
+                              :
+                            256 -> 100%
+                              :
+                            512 -> 200% (with possible distortions)
+
+Note:           68020+ is recommended
+
+Formula:        L := (L*D2)/256
+                R := (R*D3)/256
+
+@EndNode
+@Node RFX_Karaoke "Maestix: RFX_Karaoke"
+
+Type:           RFX_Karaoke
+
+Description:    In popular music, the singer's voice is usually at the
+                center. This effect computes the center signal, and
+                removes it. The result is the music almost without
+                vocals.
+
+Parameters:     None
+
+Formula:        L := L - (L+R)/2
+                R := R - (L+R)/2
+
+@EndNode
+@Node RFX_Foregnd "Maestix: RFX_Foregnd"
+
+Type:           RFX_Foregnd
+
+Description:    The RFX_Surround signal is removed from the input
+                signal, giving the foreground signal of a surround
+                encoded sound.
+
+Parameters:     None
+
+Formula:        L := L - (L-R)/2
+                R := R - (L-R)/2
+
+@EndNode
+@Node RFX_Spatial "Maestix: RFX_Spatial"
+
+Type:           RFX_Spatial
+
+Description:    Generates a simple spatial effect. The speakers
+                seem to be further apart virtually.
+
+Parameters:     MTAG_D2   (UWORD) strongness of the effect
+
+                Strongness    0 -> plain stereo
+                              :
+                             64 -> medium spatial effect
+                              :
+                            256 -> plain mono
+
+Note:           68020+ is recommended
+
+Formula:        L := ( L + (R*D2)/256 ) / 2
+                R := ( R + (L*D2)/256 ) / 2
+
+@EndNode
+@Node RFX_Echo "Maestix: RFX_Echo"
+
+Type:           RFX_Echo
+
+Description:    Generates an echo effect. For this effect, a ring buffer
+                must be provided via MRTorus structure. There is no
+                clipping, so the signal can easily become distorted if
+                the volumes are too high.
+
+Parameters:     MTAG_D2   (UWORD) echo introduction volume
+                MTAG_D3   (UWORD) echo volume in the ring buffer. The
+                                  formula 256/(512-D3) gives the number
+                                  of echoes.
+                MTAG_A0   (APTR)  pointer to the MRTorus structure.
+                                  This structure contains a ring buffer
+                                  for each channel. The size of the
+                                  ring buffer must be dividable by 2.
+
+                introd. vol.  0 -> no echo
+                              :
+                             64 -> 25% initial volume
+                              :
+                            256 -> 100% initial volume
+                              :
+                            512 -> 200% initial volume
+
+                Echolautst.   0 -> a single echo
+                              :
+                             64 -> distant reverb
+                              :
+                            256 -> two echoes
+                              :
+                            512 -> never ending echo
+
+Note:           68030+ is strongly recommended
+
+Formula:        Lout := ( Lin + RLout ) / 2
+                RLin := ( (Lin*D2)/256 + (RLout*D3)/256 ) / 2
+                Rout := ( Rin + RRout ) / 2
+                RRin := ( (Rin*D2)/256 + (RRout*D3)/256 ) / 2
+                Increment of the ring buffer pointer
+
+                (Lout  -> left output signal        [Rout],
+                 Lin   -> left input signal         [Rin],
+                 RLout -> left ring buffer output   [RRout],
+                 RLin  -> left ring buffer input    [RRin]).
+
+@EndNode
+@Node RFX_Mask "Maestix: RFX_Mask"
+
+Type:           RFX_Mask
+
+Description:    The samples are masked using a bitmask and a binary
+                AND operation. Depending on the mask, the input
+                signal can be quantisized to a lower bit resolution.
+                (e.g. mask = 0xFF00 will give 8 bit resolution.)
+
+Parameters:     MTAG_D2   (UWORD) left bit mask
+                MTAG_D3   (UWORD) right bit mask
+
+Note:           By inappropriate bit masks, you can get strange
+                noises that can potentially damage your speakers.
+                It is recommended to turn down the speaker volume
+                before experimenting with this effect!
+
+Formula:        L := L & D2
+                R := R & D3
+
+@EndNode
+@Node RFX_Offset "Maestix: RFX_Offset"
+
+Type:           RFX_Offset
+
+Description:    Adds a DC offset to the input signal. This can be
+                used to compensate DC errors of bad A/D converters.
+                You can also add a DC offset to a good signal.
+                However, DC components will usually be removed by
+                D/A converters.
+
+                This effect takes care of clipping.
+
+Parameters:     MTAG_D2   (WORD) left DC offset (-32767..32768)
+                MTAG_D3   (WORD) right DC offset (-32767..32768)
+
+Formula:        L := L + D2   (range limited)
+                R := R + D3   (range limited)
+
+@EndNode
+@Node RFX_Robot "Maestix: RFX_Robot"
+
+Type:           RFX_Robot
+
+Description:    A timed gate for the input signal. With appropriate
+                parameters, you can get sound effects like cracking,
+                a robot-like voice, or a tremolo.
+
+Parameters:     MTAG_D2   (ULONG) Number of samples with opened gate
+                MTAG_D3   (ULONG) Number of samples with closed gate
+                MTAG_A0   (APTR) Pointer to initialized MRRobot structure
+
+                Caution: MTAG_D2 and MTAG_D3 must not contain 0
+                together, otherwise an endless loop will occur, and
+                the system will freeze.
+
+Note:           68020+ is recommended
+
+Formula:        L := (L for MTAG_D2) | (0 for MTAG_D3)
+                R := (R for MTAG_D2) | (0 for MTAG_D3)
+
+@EndNode
+@Node RFX_ReSample "Maestix: RFX_ReSample"
+
+Tag:            RFX_ReSample
+
+Description:    Virtually reduces the sampling rate of the input signal.
+
+Parameters:     MTAG_D2   (ULONG) new left sampling rate
+                MTAG_D3   (ULONG) new right sampling rate
+                MTAG_A0   (APTR) Pointer to initialized MRReSample structure
+
+Note:           68020+ is recommended
+
+Formula:        L := (Lold while (Lcnt+MTAG_D2)<Lmax), else Lold=L, Lcnt-=Lmax
+                R := (Rold while (Rcnt+MTAG_D3)<Rmax), else Rold=R, Rcnt-=Rmax
+
+@EndNode
+@Node FAQ "Maestix: FAQ"
+
+@{B}MaestixFX won't start!@{UB}
+
+  MaestixFX requires MUI by Stefan Stuntz, and Lamp.mcc by Maik "BLiZZeR"
+  Schreiber. You can find both in the AmiNet.
+
+
+@{B}MaestixFX only shows two level meters and a few LEDs. That's all?@{UB}
+
+  No. Just enlarge the window to see the rest of the GUI.
+
+
+@{B}Where can I buy a MaestroPro?@{UB}
+
+  These boards are extremely rare by now, but you may still find them on
+  online auction portals if you're lucky.
+
+  It's also not possible to build new ones. Firstly because the Yamaha
+  digital audio interface chips are not produced any more, and also very
+  hard to find by now. Secondly because there are three custom PAL chips
+  on the board, but their programs are not available, nor (to my knowledge)
+  can they be reengineered.
+
+
+@{B}I got a smaller Maestro (without "Pro", product ID 3). Can I use it?@{UB}
+
+  Sadly, no. The older Maestro board has no decoder chip and also no FIFOs.
+  It requires a completely different kind of driver, which would also have
+  to disable multitasking during operation. There is simply no good reason
+  to invest the time for developing a driver.
+
+
+@{B}Can the MaestroPro also read the index marks sent by my CD player?@{UB}
+
+  Probably not. However I don't have sufficient information to give a final
+  say on that. On a fast processor, and with a lot of CPU load, it would
+  at least be theoretically possible.
+
+
+@{B}I own professional equipment that requires the AES/EBU studio mode. Can
+I use it with Maestix?@{UB}
+
+  Yes, Maestix supports the S/P-DIF and AES/EBU standard. If your software
+  does not offer an option for that, invoke SetMstx with the STUDIO option.
+  It will enforce studio mode.
+
+
+@{B}When I start playback, my DAT recorder does an internal switch and
+"swallows" the first second of the signal.@{UB}
+
+  You can set a delay in SetMstx. Most programs will then pause for the
+  given time before playback, allowing the receiver to settle to the new
+  signal.
+
+
+@{B}I often get FIFO overflows.@{UB}
+
+  Your processor is too slow. Even though the maestix.library is highly
+  optimized, it still takes a lot of CPU power to move the sample data
+  between the system and the MaestroPro hardware. You should use at least
+  an 68020. Some realtime FX require at least an 68030, while mpeg playback
+  even requires an 68040/50 or higher.
+
+
+@{B}Can I circumvent the limitations of the SCMS copy protection?@{UB}
+
+  Technically, the MaestroPro hardware is capable of doing that. It was
+  legal at the time the board was developed and sold. However, nowadays
+  removing a copy protection scheme may pose a criminal offense in some
+  countries. We strongly encourage to comply with your local laws.
+
+
+@{B}There is no signal when I connect a DVD or BluRay player.@{UB}
+
+  Modern devices offer higher sampling rates, higher bit resolutions, or
+  different sound encodings that have not been present when the MaestroPro
+  was developed. You need to change the player settings to plain stereo
+  PCM output, and a maximum sampling rate of 48kHz.
+
+
+@EndNode
+@Node Credits "Maestix: Credits"
+
+Many people are involved in the development of the maestix.library.
+
+However I want to especially thank these people for their help (in no
+special order):
+
+@{U} Andreas Benden @{UU}       for beta testing
+
+@{U} Thomas Wenzel @{UU}        for Play16, the first tool using Maestix
+
+@{U} Teijo Kinnunen @{UU}       for OctaMed Sound Studio
+
+@{U} Stéphane Tavenard @{UU}    for the mpega.library
+
+@{U} Henning Friedl @{UU}       for his kind help with the hardware
+
+@{U} Frank Wille @{UU}          for the best Assembler ever! :-)
+
+@{U} MacroSystem @{UU}          for inventing the MaestroPro
+
+
+@{B}            //
+        \\\\ //   -- Amiga - Old Love Never Dies --
+         \\X/  @{UB}
+
+
+@EndNode
