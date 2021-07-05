@@ -226,7 +226,7 @@ StopRealtime	movem.l	d0-d3/a0-a6,-(sp)
 	;-- disable FIFOs and interrupts
 		move.l	(mb_HardBase,a5),a4	;; TODO: mute
 		exec	Disable
-		and	#!(MAMF_TFENA|MAMF_RFENA|MAMF_TFINTE|MAMF_RFINTE),(mb_ModusReg,a5)
+		and	#~(MAMF_TFENA|MAMF_RFENA|MAMF_TFINTE|MAMF_RFINTE)&$FFFF,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		exec	Enable
 	;-- clear realtime state

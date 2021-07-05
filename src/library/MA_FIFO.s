@@ -86,7 +86,7 @@ TransmitData	movem.l	d0-d7/a0-a6,-(sp)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		exec	Enable
 	;-- unmute output
-		and	#!MAMF_EMUTE,(mb_ModusReg,a5)
+		and	#~MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 	;-- release hardware semaphore
 		lea	(mb_Semaphore,a5),a0
@@ -159,7 +159,7 @@ FlushTransmit	movem.l	d0-d3/a0-a6,-(sp)
 		exec	ObtainSemaphore
 	;-- disable transmit FIFO and interrupt, mute output
 		move.l	(mb_HardBase,a5),a4
-		and	#!(MAMF_TFENA|MAMF_TFINTE),(mb_ModusReg,a5)
+		and	#~(MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
 		or	#MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 	;-- wait for changes to become effective
@@ -200,7 +200,7 @@ FlushReceive	movem.l	d0-d3/a0-a6,-(sp)
 		exec	ObtainSemaphore
 	;-- stop receive FIFO and interrupts
 		move.l	(mb_HardBase,a5),a4
-		and	#!(MAMF_RFENA|MAMF_RFINTE),(mb_ModusReg,a5)
+		and	#~(MAMF_RFENA|MAMF_RFINTE),(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 	;-- wait for changes to become effective
 		move.l	#500,d0			; 500us should be sufficient...

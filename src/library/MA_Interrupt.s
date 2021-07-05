@@ -76,7 +76,7 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		sf	(mb_TFirst,a5)		; now we have a clean state
 		bra	.notransmit
 	;---- stop transmit FIFO if it ran empty
-.tfifo_error	and	#!(MAMF_TFENA|MAMF_TFINTE),(mb_ModusReg,a5)
+.tfifo_error	and	#~(MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
 		or	#MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		st	(mb_TError,a5)		; report transmit FIFO error	;; TODO: cleared where?
@@ -93,7 +93,7 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		bsr	ReadRFIFO		; receive FIFO half full, purge it
 		bra	.noreceive
 	;---- stop receive FIFO if it ran full
-.rfifofull	and	#!(MAMF_RFENA|MAMF_RFINTE),(mb_ModusReg,a5)
+.rfifofull	and	#~(MAMF_RFENA|MAMF_RFINTE),(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		st	(mb_RError,a5)		; report receive FIFO error	;; TODO: cleared where?
 	;-- int handler completed
@@ -151,7 +151,7 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 	;-- FIFO overflow during realtime FX
 	; Both FIFOs are processed synchronously, so an overflow should never
 	; happen. But now we are here, let's handle it like a pro. :)
-.realdone	and	#!(MAMF_RFENA|MAMF_RFINTE|MAMF_TFENA|MAMF_TFINTE),(mb_ModusReg,a5)
+.realdone	and	#~(MAMF_RFENA|MAMF_RFINTE|MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)	; stop all FIFOs and ints
 		st	(mb_RError,a5)			; report receive error	;; TODO: cleared where?
 		st	(mb_TError,a5)			; report transmit error

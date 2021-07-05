@@ -684,7 +684,7 @@ ChangeSource	movem.l	a0/d0-d1,-(sp)
 		 bfins	d0,d6{17:7}
 		ELSE
 		 and.l	#$7F,d0
-		 and.l	#!$7F00,d6
+		 and.l	#~$7F00,d6
 		 lsl.l	#8,d0
 		 or.l	d0,d6
 		ENDC
@@ -717,7 +717,7 @@ ChangeProh	movem.l	d0/a0,-(sp)
 		move	(mh_status,a0),d0
 		btst	#MASB_DERR,d0		; input has signal?
 		bne	.inpoff			;   no: turn off
-		and	#!MAMF_DSEL,(mb_ModusReg,a5)
+		and	#~MAMF_DSEL,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
 		move	(mh_status,a0),d0	; fetch status
 		btst	#MASB_DS1,d0		; copy permitted?
@@ -782,20 +782,20 @@ ChangeEmph	movem.l	d0-d1/a0,-(sp)
 		bne	.nooff
 .inp_off	btst	#0,d6			; studio mode?
 		beq	.off_custom
-		and.l	#!$001c,d6		;   studio emphasis flag
+		and.l	#~$001c,d6		;   studio emphasis flag
 		or.l	#$0004,d6
 		bra	.done
-.off_custom	and.l	#!$0038,d6		;   custom emphasis flag
+.off_custom	and.l	#~$0038,d6		;   custom emphasis flag
 		bra	.done
 	;-- 50us emphasis?
 .nooff		cmp.l	#EMPH_50us,d0
 		bne	.no50us
 .inp_on		btst	#0,d6			; studio mode?
 		beq	.us50_custom
-		and.l	#!$001c,d6		;   studio 50us flag
+		and.l	#~$001c,d6		;   studio 50us flag
 		or.l	#$000c,d6
 		bra	.done
-.us50_custom	and.l	#!$0038,d6		;   custom 50us flag
+.us50_custom	and.l	#~$0038,d6		;   custom 50us flag
 		or.l	#$0008,d6
 		bra	.done
 	;-- CCITT J.17 emphasis?
@@ -867,7 +867,7 @@ ChangeRate	movem.l	d0-d1/a0,-(sp)
 		 move.b	(a0,d0.l),d0
 		 bfins	d0,d6{24:3}
 		ELSE
-		 and.l	#!$00C0,d6
+		 and.l	#~$00C0,d6
 		 or.l	(a0,d0.l),d6
 		ENDC
 		bra	.done
@@ -877,7 +877,7 @@ ChangeRate	movem.l	d0-d1/a0,-(sp)
 		 move.b	(a0,d0.l),d0
 		 bfins	d0,d6{4:4}
 		ELSE
-		 and.l	#!$0F000000,d6
+		 and.l	#~$0F000000,d6
 		 or.l	(a0,d0.l),d6
 		ENDC
 	;-- done
@@ -928,7 +928,7 @@ SelectInput	movem.l	d0/a4-a5,-(sp)
 	;-- coaxial input?
 .noopt		cmp.l	#INPUT_COAXIAL,d0
 		bne	.done
-		or	#MAMF_INPUT!MAMF_DKMODE,(mb_ModusReg,a5)
+		or	#MAMF_INPUT|MAMF_DKMODE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 	;-- done
 .done		movem.l	(sp)+,d0/a4-a5
@@ -953,7 +953,7 @@ SelectOutput	movem.l	d0/a4-a5,-(sp)
 .nobypass	cmp.l	#OUTPUT_INPUT,d0
 		bne	.noinput
 		or	#MAMF_BYPASS,(mb_ModusReg,a5)
-		and	#~(MAMF_OUTPUT!MAMF_EMUTE),(mb_ModusReg,a5)
+		and	#~(MAMF_OUTPUT|MAMF_EMUTE),(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		;; TODO:
 		; Synchronization issues may occur here.
@@ -964,7 +964,7 @@ SelectOutput	movem.l	d0/a4-a5,-(sp)
 	;-- FIFO?
 .noinput	cmp.l	#OUTPUT_FIFO,d0
 		bne	.done
-		move	#MAMF_BYPASS!MAMF_OUTPUT,d0
+		move	#MAMF_BYPASS|MAMF_OUTPUT,d0
 		move	(mb_ModusReg,a5),d1
 		btst	#MAMB_TFENA,d1
 		bne	.nomute
@@ -994,7 +994,7 @@ ShiftReg	movem.l	d0/d5-d7/a0,-(sp)
 		move.l	d0,d6
 		move	d1,d7
 	;-- select shift register
-		and	#!(MAMF_ECLD|MAMF_ECLK),(mb_ModusReg,a5)
+		and	#~(MAMF_ECLD|MAMF_ECLK),(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
 		move.l	#5000,d0		; 5ms
 		bsr	TimerDelay
@@ -1007,7 +1007,7 @@ ShiftReg	movem.l	d0/d5-d7/a0,-(sp)
 		move.l	#5000,d0		; 5ms
 		bsr	TimerDelay
 	;-- deselect shift register
-		and	#!(MAMF_ECLK|MAMF_ECIN),(mb_ModusReg,a5)
+		and	#~(MAMF_ECLK|MAMF_ECIN),(mb_ModusReg,a5)
 		or	#MAMF_ECLD,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
 	;-- done
@@ -1023,13 +1023,13 @@ ShiftReg	movem.l	d0/d5-d7/a0,-(sp)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
 		bra	.bitset
 	;---- clear bit
-.clear		and	#!MAMF_ECIN,(mb_ModusReg,a5)
+.clear		and	#~MAMF_ECIN,(mb_ModusReg,a5)
 		or	#MAMF_ECLK,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
 	;---- clock pulse
 .bitset		move.l	#1000,d0		; 1ms
 		bsr	TimerDelay
-		and	#!MAMF_ECLK,(mb_ModusReg,a5)
+		and	#~MAMF_ECLK,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
 .doloop		move.l	#1000,d0		; 1ms
 		bsr	TimerDelay
