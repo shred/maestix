@@ -30,13 +30,13 @@ Requirements:
 
 * [GNU make](http://www.gnu.org/software/make/) or another compatible make tool
 * [vbcc](http://www.compilers.de/vbcc.html) with [fd2pragma](https://github.com/adtools/fd2pragma)
-* [AmigaOS NDK 3.9](http://www.haage-partner.de/download/AmigaOS/NDK39.lha), unpacked on your build machine
+* [AmigaOS NDK 3.2](https://www.hyperion-entertainment.com/index.php/downloads?view=files&parent=40), unpacked on your build machine
 * [mpega.library](http://aminet.net/package/util/libs/mpega_library) by Stéphane Tavenard
 * [MUI](http://sasg.com/mui/download.html) by Stefan Stuntz
 * [Lamp.mcc](http://aminet.net/package/dev/mui/MCC_Lamp) by Maik Schreiber
 * [lha](https://github.com/jca02266/lha)
 
-Set the `AMIGA_NDK` env variable to the location of the unpacked `NDK_3.9` directory on your build machine. Also set `AMIGA_INCLUDES` to the location of 3rd party include files, where the mpega and MUI includes can be found.
+Set the `AMIGA_NDK` env variable to the location of the unpacked `NDK3.2` directory on your build machine. Also set `AMIGA_INCLUDES` to the location of 3rd party include files, where the mpega and MUI includes can be found.
 
 Then just invoke `make` to build the project. The compiled project can be found in the `build` directory. `make release` will compile a release version in the `release` directory.
 

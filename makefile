@@ -30,15 +30,15 @@ MA_OBJS   = $(OBJP)/MA_Main.o $(OBJP)/MA_Hardware.o $(OBJP)/MA_Interrupt.o \
 		$(OBJP)/MA_FIFO.o $(OBJP)/MA_Realtime.o $(OBJP)/MA_EndCode.o
 
 GOPTS     = -esc -sc \
-		-I $(INCP) -I $(REFP) -I ${AMIGA_NDK}/Include/include_i/ -I ${AMIGA_INCLUDES} \
+		-I $(INCP) -I $(REFP) -I ${AMIGA_NDK}/Include_I/ -I ${AMIGA_INCLUDES} \
 		-D_MAKE_68020
 AOPTS     = -Fhunk $(GOPTS)
 COPTS     = +aos68k -c99 -lauto -lamiga -cpu=68020 \
 		-I${VBCC}/targets/m68k-amigaos/include \
-		-I$(REFP) -I${AMIGA_NDK}/Include/include_h/ -I${AMIGA_INCLUDES} \
-		-L=${AMIGA_NDK}/Include/linker_libs/
+		-I$(REFP) -I${AMIGA_NDK}/Include_H/ -I${AMIGA_INCLUDES} \
+		-L=${AMIGA_NDK}/lib/
 LOPTS     = -bamigahunk -mrel -s \
-		-L ${AMIGA_NDK}/Include/linker_libs/ -l debug -l amiga
+		-L ${AMIGA_NDK}/lib/ -l debug -l amiga
 
 .PHONY : all clean release check
 
@@ -127,23 +127,8 @@ $(REFP)/proto/maestix.h: $(REFP)/fd/maestix_lib.fd $(REFP)/clib/maestix_protos.h
 $(OBJP)/maestix.library: $(MA_OBJS)
 	vlink $(LOPTS) -o $(OBJP)/maestix.library -s $(MA_OBJS)
 
-$(OBJP)/MA_Main.o: $(SRCP)/library/MA_Main.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/MA_Main.o $(SRCP)/library/MA_Main.s
-
-$(OBJP)/MA_Hardware.o: $(SRCP)/library/MA_Hardware.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/MA_Hardware.o $(SRCP)/library/MA_Hardware.s
-
-$(OBJP)/MA_Interrupt.o: $(SRCP)/library/MA_Interrupt.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/MA_Interrupt.o $(SRCP)/library/MA_Interrupt.s
-
-$(OBJP)/MA_FIFO.o: $(SRCP)/library/MA_FIFO.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/MA_FIFO.o $(SRCP)/library/MA_FIFO.s
-
-$(OBJP)/MA_Realtime.o: $(SRCP)/library/MA_Realtime.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/MA_Realtime.o $(SRCP)/library/MA_Realtime.s
-
-$(OBJP)/MA_EndCode.o: $(SRCP)/library/MA_EndCode.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/MA_EndCode.o $(SRCP)/library/MA_EndCode.s
+$(OBJP)/%.o: $(SRCP)/library/%.s
+	vasmm68k_mot $(AOPTS) -o $@ $<
 
 #-- maestix tools
 
@@ -167,33 +152,9 @@ $(OBJP)/MaestixFX : $(SRCP)/maestixfx/MaestixFX.c
 
 #-- examples
 
-$(OBJP)/examples/AnalyzeInput: $(SRCP)/examples/AnalyzeInput.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/AnalyzeInput.o $(SRCP)/examples/AnalyzeInput.s
-	vlink $(LOPTS) -o $(OBJP)/examples/AnalyzeInput -s $(OBJP)/AnalyzeInput.o
-
-$(OBJP)/examples/CSBchanger: $(SRCP)/examples/CSBchanger.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/CSBchanger.o $(SRCP)/examples/CSBchanger.s
-	vlink $(LOPTS) -o $(OBJP)/examples/CSBchanger -s $(OBJP)/CSBchanger.o
-
-$(OBJP)/examples/LevelWindow: $(SRCP)/examples/LevelWindow.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/LevelWindow.o $(SRCP)/examples/LevelWindow.s
-	vlink $(LOPTS) -o $(OBJP)/examples/LevelWindow -s $(OBJP)/LevelWindow.o
-
-$(OBJP)/examples/Realtime: $(SRCP)/examples/Realtime.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/Realtime.o $(SRCP)/examples/Realtime.s
-	vlink $(LOPTS) -o $(OBJP)/examples/Realtime -s $(OBJP)/Realtime.o
-
-$(OBJP)/examples/RealtimeEcho: $(SRCP)/examples/RealtimeEcho.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/RealtimeEcho.o $(SRCP)/examples/RealtimeEcho.s
-	vlink $(LOPTS) -o $(OBJP)/examples/RealtimeEcho -s $(OBJP)/RealtimeEcho.o
-
-$(OBJP)/examples/SineTone: $(SRCP)/examples/SineTone.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/SineTone.o $(SRCP)/examples/SineTone.s
-	vlink $(LOPTS) -o $(OBJP)/examples/SineTone -s $(OBJP)/SineTone.o
-
-$(OBJP)/examples/Surround: $(SRCP)/examples/Surround.s
-	vasmm68k_mot $(AOPTS) -o $(OBJP)/Surround.o $(SRCP)/examples/Surround.s
-	vlink $(LOPTS) -o $(OBJP)/examples/Surround -s $(OBJP)/Surround.o
+$(OBJP)/examples/%: $(SRCP)/examples/%.s
+	vasmm68k_mot $(AOPTS) -o $(OBJP)/$*.o $<
+	vlink $(LOPTS) -o $@ -s $(OBJP)/$*.o
 
 #-- AHI driver
 
