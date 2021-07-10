@@ -46,7 +46,7 @@ Today's standard encoding is UTF-8. Sadly AmigaOS does not support this encoding
 
 The source code of this project can be found [at the official GitHub page](https://github.com/shred/maestix).
 
-If you found a bug or have a feature request, feel free to [open an inssue](https://github.com/shred/maestix/issues) or [send a pull request](https://github.com/shred/maestix/pulls).
+If you found a bug or have a feature request, feel free to [open an issue](https://github.com/shred/maestix/issues) or [send a pull request](https://github.com/shred/maestix/pulls).
 
 Official binaries are available [at AmiNet](http://aminet.net/package/driver/audio/Maestix).
 
