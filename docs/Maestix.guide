@@ -1348,6 +1348,15 @@ I use it with Maestix?@{UB}
   PCM output, and a maximum sampling rate of 48kHz.
 
 
+@{B}Why is it called Maestix?@{UB}
+
+  The maestix.library is not the official driver. When I wrote it, I
+  assumed that it would only be a temporary solution, because
+  MacroSystem would publish an official "maestro.library" sooner or
+  later. I gave my library a different name to avoid a name collision
+  with the anticipated official driver. If I had known that there would
+  be none, I would have called it "maestro.library" from the start.
+
 @EndNode
 @Node Credits "Maestix: Credits"
 
