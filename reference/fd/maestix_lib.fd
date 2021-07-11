@@ -32,7 +32,7 @@ StartRealtime(maestrobase,taglist)(a0/a1)
 StopRealtime(maestrobase)(a0)
 UpdateRealtime(maestrobase,taglist)(a0/a1)
 ##private
-maestixPrivate1()
+maestixPrivate1()()
 ##public
 ReadPostLevel(maestrobase,taglist)(a0/a1)
 ##end
