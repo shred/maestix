@@ -179,7 +179,14 @@ These Maestix bugs are known:
 @EndNode
 @Node History "Maestix: History"
 
-V41.50 (2021-05-19)
+V42.00 (2021-??-??)
+        · Switch to vbcc. Maestix is Open Source now. :)
+        · Realtime FX callbacks can use D6 and D7 as aggregation registers
+        · Thanks to the new aggregation registers, RFX_Robot does not need
+          the MRRobot structure any more. You can still pass it in for
+          compatibility reasons, but it will be ignored.
+
+V41.50 (1999-07-04)
         · Hopefully fixed the "noise" bug
 
 V41.40 (1999-05-15)

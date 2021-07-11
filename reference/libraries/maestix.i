@@ -49,7 +49,7 @@ MAESTIXNAME     MACRO
 		dc.b    "maestix.library",0
 		ENDM
 
-MAESTIXVERSION  EQU     41
+MAESTIXVERSION  EQU     42
 
     STRUCTURE MaestixBase,0
 	STRUCT  mxb_LibNode,LIB_SIZE
@@ -221,13 +221,6 @@ _RFX_COUNT	EQU	16		;Number of effects in this library version
 	ULONG   mrtor_Size              ;Size of these buffers (bytes)
 	ULONG   mrtor_Offset            ;current offset (init with NULL)
 	LABEL   mrtor_SIZEOF
-
-*------------------------------------------------------------------------*
-* Robot structure for RFX_Robot
-
-    STRUCTURE MRRobot,0
-	LONG    mrrob_Counter           ;Sample counter (init with 0)
-	LABEL   mrrob_SIZEOF
 
 *------------------------------------------------------------------------*
 * ReSample structure for RFX_ReSample

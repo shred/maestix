@@ -36,15 +36,15 @@
 
 DEF_DELAY	EQU	100		; Default Setup Delay (ms)
 
-VERSION		EQU	41		;<- Version
-REVISION	EQU	50		;<- Revision
+VERSION		EQU	42		;<- Version
+REVISION	EQU	0		;<- Revision
 
 SETVER		MACRO			;<- Version String Macro
-		dc.b	"41.50"
+		dc.b	"42.00"
 		ENDM
 
 SETDATE		MACRO			;<- Date String MACRO
-		dc.b	"04.07.1999"
+		dc.b	"11.07.2021"
 		ENDM
 
 **

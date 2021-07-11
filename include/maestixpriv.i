@@ -142,6 +142,8 @@ mb_RT_A0	rs.l	1		; Realtime FX A0 value
 mb_RT_A1	rs.l	1		; Realtime FX A1 value
 mb_RT_D2	rs.l	1		; Realtime FX D2 value
 mb_RT_D3	rs.l	1		; Realtime FX D3 value
+mb_RT_D6	rs.l	1		; Realtime FX D6 aggregator value
+mb_RT_D7	rs.l	1		; Realtime FX D7 aggregator value
 mb_OldInput	rs.l	1		; Old input value
 mb_OldOutput	rs.l	1		; Old output value
 mb_PostLevelR	rs.w	1		; \ Output level R (keep this order!!!)

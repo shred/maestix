@@ -533,25 +533,34 @@ maestix.library/UpdateRealtime
                 -> D1 -- (WORD) right sample
                 -> D2 -- (ULONG) MTAG_D2 value
                 -> D3 -- (ULONG) MTAG_D3 value
-                -> D6 -- Scratch register, may be changed
-                -> D7 -- Scratch register, may be changed
+                -> D6 -- (ULONG) D6 value of previous invocation
+                -> D7 -- (ULONG) D7 value of previous invocation
                 -> A0 -- (APTR) MTAG_A0 value
                 -> A1 -- (APTR) MTAG_A1 value
                 -> A2 -- Return address after processing.
 
         The results are:
 
-                <- D0.w -- (WORD) new left sample
-                <- D1.w -- (WORD) new right sample
+                <- D0 -- (WORD) new left sample
+                <- D1 -- (WORD) new right sample
+                <- D6 -- (ULONG) new D6 value
+                <- D7 -- (ULONG) new D7 value
 
         The callback returns by "JMP (A2)", it MUST NOT return by RTS!
 
         The registers D2-D5 and A0-A7 MUST NOT be changed by the callback.
 
-        D6 and D7 are the only registers that can be left modified. Do not
-        assume any usable values in these registers. Especially do not
-        assume that the values in D6 and D7 are kept between invocations
-        of your callback.
+        Starting in V42.00, the D6 and D7 registers serve as aggregation
+        registers for each callback invocation. They are initialized with 0
+        when the realtime FX is started. It is now guaranteed that the
+        values in D6 and D7 are kept between callback invocations. This is,
+        each callback invocation is guaranteed to get the values that the
+        previous invocation has left in D6 and D7. These registers can be
+        used for aggregation, counters, or just as scratch register.
+
+        Before V42.00, the D6 and D7 registers could be used freely by the
+        callback function, but they always only contained random values at
+        invocation time.
 
         The effect routine must be in MEMF_PUBLIC memory. Note that a task
         must not be necessarily running in MEMF_PUBLIC memory!

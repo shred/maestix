@@ -109,6 +109,9 @@ StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 		moveq	#0,d1
 		utils	GetTagData
 		move.l	d0,(mb_RT_D3,a5)
+	;-- clear aggregation values
+		clr.l	(mb_RT_D6,a5)
+		clr.l	(mb_RT_D7,a5)
 	;-- post level meter
 		move.l	a4,a0
 		move.l	#MTAG_PostLevel,d0
@@ -482,10 +485,11 @@ Offset		add	d2,d0
 *
 *	-> D2.l	Length of open gate
 *	-> D3.l	Length of closed gate
+*	-> D7.l	Gate counter
 *	-> A0.l	Robot structure
+*	<- D7.l	New value of gate counter
 *
-Robot		move.l	(mrrob_Counter,a0),d7	; sample counter
-		addq.l	#1,d7			;   decrement
+Robot		addq.l	#1,d7			; count this sample
 		bmi	.gate_close
 		cmp.l	d2,d7
 		blo	.done			; gate is still open
@@ -494,8 +498,7 @@ Robot		move.l	(mrrob_Counter,a0),d7	; sample counter
 		neg.l	d7
 .gate_close	moveq	#0,d0			; gate is closed
 		moveq	#0,d1
-.done		move.l	d7,(mrrob_Counter,a0)	; remember counter
-		jmp	(a2)
+.done		jmp	(a2)
 
 
 **

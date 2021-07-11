@@ -39,8 +39,8 @@
 #include "PIC_mfx.h"
 #include "PIC_Logo.h"
 
-#define VERSION "1.4"
-#define VDATE   "04.07.1999"
+#define VERSION "1.5"
+#define VDATE   "11.07.2021"
 
 #define REFRESHRATE (50000)       // unit microseconds
 #define LEVELINERT  (5)           // slowness of the level meter (bigger = slower)
@@ -83,7 +83,6 @@ Object **idlist[] = {
 struct MUI_CustomClass *CL_FracSlider;
 
 struct MRTorus    torus = {0};
-struct MRRobot    robot = {0};
 struct MRReSample resample = {0};
 
 BOOL realtiming = FALSE;
@@ -397,8 +396,6 @@ int SetRealtime(void)
       break;
     case RFX_Robot:
       FX_Robot(&regd2,&regd3);
-      robot.mrrob_Counter = 0;
-      rega0 = &robot;
       break;
     case RFX_ReSample:
       FX_ReSample(&regd2,&regd3);
@@ -484,7 +481,6 @@ void UpdRealtime(void)
       break;
     case RFX_Robot:
       FX_Robot(&regd2,&regd3);
-      robot.mrrob_Counter = 0;
       break;
     case RFX_ReSample:
       FX_ReSample(&regd2,&regd3);
@@ -528,7 +524,7 @@ int main(void)
   ULONG id, idcnt;
   ULONG timermask;
 
-  if(MaestixBase = OpenLibrary("maestix.library",41))
+  if(MaestixBase = OpenLibrary("maestix.library",MAESTIXVERSION))
   {
     if(mbase = AllocMaestro(NULL))
     {

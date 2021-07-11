@@ -112,14 +112,14 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		btst	#MASB_RFULL,d0		; receive FIFO full?
 		beq	.realdone		;    (should never happen)
 	;-- process buffers
-	; DO NOT USE D6 & D7 !
-	; They are trashed by the FX callback.
 		move.b	(mb_LevelFlag,a5),d5	; levelmeter
 		ror.l	#1,d5			; Move flag to bit 31 (long sign)
 		move.l	(mb_RT_A0,a5),a0	; A0 FX parameter
 		move.l	(mb_RT_A1,a5),a1	; A1 FX parameter
 		move.l	(mb_RT_D2,a5),d2	; D2 FX parameter
 		move.l	(mb_RT_D3,a5),d3	; D3 FX parameter
+		move.l	(mb_RT_D6,a5),d6	; D6 aggregator variable
+		move.l	(mb_RT_D7,a5),d7	; D7 aggregator variable
 		move.l	(mb_RT_Call,a5),a3	; pointer to FX callback
 		lea	(.return,PC),a2		; A2: return address (avoid stack)
 		move	#192,d4			; 384 double words
@@ -130,6 +130,9 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		bpl	.do_loop		; LevelFlag reset? no post-level required
 		bsr	post_level
 .do_loop	dbra	d4,.loop
+	;-- remember aggregation values
+		move.l	d6,(mb_RT_D6,a5)
+		move.l	d7,(mb_RT_D7,a5)
 		bra	.noreceive
 	;-- check transmit FIFO underflow
 .realcheck	tst.b	(mb_TFirst,a5)		; first invocation?

@@ -46,7 +46,7 @@
 /*  Generic library informations */
 
 
-#define MAESTIXVERSION  (41)
+#define MAESTIXVERSION  (42)
 
 struct MaestixBase {
         struct  Library mxb_LibNode;
@@ -219,13 +219,6 @@ struct MRTorus {
         APTR    mrtor_PointerR; /* Pointer to right data buffer */
         ULONG   mrtor_Size;     /* Size of these buffers (bytes) */
         ULONG   mrtor_Offset;   /* current offset (init with NULL) */
-};
-
-/* ------------------------------------------------------------------------ */
-/* Robot structure for RFX_Robot */
-
-struct MRRobot {
-        LONG    mrrob_Counter;  /* Sample counter (init with 0) */
 };
 
 /* ------------------------------------------------------------------------ */
