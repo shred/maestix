@@ -1074,46 +1074,14 @@ GetUDB		movem.l	a4-a5,-(sp)
 *	-> D0.l	Delay (microseconds)
 *
 		public	TimerDelay
-TimerDelay	movem.l	d0-d1/d5-d7/a0-a2/a6,-(SP)
-		move.l	d0,d7			;; TODO: too much overhead!
-		beq	.error1			; 0ms -> we can leave now
-	;-- create an IORequest
-		exec	CreateMsgPort
-		move.l	d0,d6
-		beq	.error1
-		move.l	d0,a0
-		move.l	#IOTV_SIZE,d0
-		exec	CreateIORequest
-		move.l	d0,d5
-		beq	.error2
-	;-- open timer.device
-		lea	(.timername,PC),a0
-		move.l	#UNIT_MICROHZ,d0
-		move.l	d5,a1
+TimerDelay	movem.l	d0-d1/a0-a1/a6,-(SP)
+		move.l	d0,d2
+		beq	.done
 		moveq	#0,d1
-		exec	OpenDevice
-		tst.l	d0
-		bne	.error3
-	;-- wait
-		move.l	d5,a1
-		move	#TR_ADDREQUEST,(IO_COMMAND,a1)
-		clr.l	(IOTV_TIME+TV_SECS,a1)		; 0 seconds
-		move.l	d7,(IOTV_TIME+TV_MICRO,a1)	; D7 microseconds
-		exec	DoIO
-	;-- cleanup
-		move.l	d5,a1
-		exec	CloseDevice
-.error3		move.l	d5,a0
-		exec	DeleteIORequest
-.error2		move.l	d6,a0
-		exec	DeleteMsgPort
-.error1		movem.l	(SP)+,d0-d1/d5-d7/a0-a2/a6
+		move.l	#UNIT_MICROHZ,d0
+		jsr	TimeDelay		; amiga.lib
+.done		movem.l	(SP)+,d0-d1/a0-a1/a6
 		rts
-
-	;-- constants
-.timername	dc.b	"timer.device",0
-		even
-
 
 	;; TODO: Why do we keep it? It is also provided by the client.
 		public	maestrobase
