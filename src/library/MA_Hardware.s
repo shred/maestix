@@ -219,9 +219,8 @@ AllocMaestro	movem.l	d1-d5/a0-a6,-(sp)
 		public	FreeMaestro
 FreeMaestro	movem.l	d0-d3/a0-a6,-(sp)
 		move.l	a0,a5
-	;-- obtain card semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- reset card
 		tst.b	(mb_AllocOnly,a5)	; should only be allocated?
 		bne	.skipreset		; then skip reset
@@ -313,9 +312,8 @@ SetMaestro	movem.l	d0-d7/a0-a6,-(sp)
 		bne	.gottags
 		lea	(.emptytag,PC),a1	; no tags? use empty tag list
 .gottags	move.l	a1,d7			; d7 ^Tags
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- select input
 		move.l	#MTAG_Input,d0
 		move.l	d7,a0
@@ -486,9 +484,8 @@ SetMaestro	movem.l	d0-d7/a0-a6,-(sp)
 		 mulu	#1000,d0
 		ENDC
 		bsr	TimerDelay
-	;-- release hardware semaphore
-.done		lea	(mb_Semaphore,a5),a0
-		exec	ReleaseSemaphore
+	;-- release hardware
+.done		bsr	Release
 	;-- done
 		movem.l	(SP)+,d0-d7/a0-a6
 		rts
@@ -508,9 +505,8 @@ SetMaestro	movem.l	d0-d7/a0-a6,-(sp)
 GetStatus	movem.l	d1-d2/a4-a6,-(sp)
 		move.l	a0,a5			; A5 ^MaestroBase
 		move.l	(mb_HardBase,a5),a4	; A4 ^Hardware
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- transmit FIFO status?
 		cmp.l	#MSTAT_TFIFO,d0
 		bne	.notfifo
@@ -638,9 +634,8 @@ GetStatus	movem.l	d1-d2/a4-a6,-(sp)
 		 ext	d0
 		 ext.l	d0
 		ENDC
-	;-- release hardware semaphore
-.done		lea	(mb_Semaphore,a5),a0
-		exec	ReleaseSemaphore
+	;-- release hardware
+.done		bsr	Release
 		movem.l	(SP)+,d1-d2/a4-a6
 		rts
 
@@ -1063,6 +1058,32 @@ GetUDB		movem.l	a4-a5,-(sp)
 		exec	Permit
 	;-- done
 		movem.l	(sp)+,a4-a5
+		rts
+
+
+**
+* Lock the hardware. The current thread will gain exclusive access to the
+* MaestroPro hardware and the delay timer.
+*
+*	-> A5.l	^MaestroBase
+*
+		public	Lock
+Lock		movem.l	a0/a6,-(SP)
+		lea	(mb_Semaphore,a5),a0
+		exec	ObtainSemaphore
+		movem.l (SP)+,a0/a6
+		rts
+
+**
+* Release the hardware lock.
+*
+*	-> A5.l	^MaestroBase
+*
+		public	Release
+Release		movem.l	a0/a6,-(SP)
+		lea	(mb_Semaphore,a5),a0
+		exec	ReleaseSemaphore
+		movem.l (SP)+,a0/a6
 		rts
 
 

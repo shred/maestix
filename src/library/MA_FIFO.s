@@ -53,8 +53,7 @@ TransmitData	movem.l	d0-d7/a0-a6,-(sp)
 		btst	#MAMB_TFENA,d0		; active? then we're done here
 		bne	.done
 	;-- start transmit FIFO
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+		bsr	Lock
 	;-- check input signal
 		move.l	a1,-(SP)
 		moveq	#MSTAT_Signal,d0
@@ -88,9 +87,8 @@ TransmitData	movem.l	d0-d7/a0-a6,-(sp)
 	;-- unmute output
 		and	#~MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
-	;-- release hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ReleaseSemaphore
+	;-- release hardware
+		bsr	Release
 	;-- done
 .done		movem.l	(SP)+,d0-d7/a0-a6
 		rts
@@ -120,9 +118,8 @@ ReceiveData	movem.l	d0-d2/a0/a2-a6,-(sp)
 .nothalf	move	(mb_ModusReg,a5),d0
 		btst	#MAMB_RFENA,d0		; is enabled? then we're done...
 		bne	.rfiforun
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- synchronize
 		lea	(mh_status,a4),a3
 		exec	Disable			;; TODO: timeout
@@ -138,9 +135,8 @@ ReceiveData	movem.l	d0-d2/a0/a2-a6,-(sp)
 		or	#MAMF_RFENA|MAMF_RFINTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		exec	Enable
-	;-- release hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ReleaseSemaphore
+	;-- release hardware
+		bsr	Release
 	;-- done
 .rfiforun	movem.l	(sp)+,d0-d2/a0/a2-a6
 		rts
@@ -154,9 +150,8 @@ ReceiveData	movem.l	d0-d2/a0/a2-a6,-(sp)
 		public	FlushTransmit
 FlushTransmit	movem.l	d0-d3/a0-a6,-(sp)
 		move.l	a0,a5
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- disable transmit FIFO and interrupt, mute output
 		move.l	(mb_HardBase,a5),a4
 		and	#~(MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
@@ -179,9 +174,8 @@ FlushTransmit	movem.l	d0-d3/a0-a6,-(sp)
 		move.l	d0,a1
 		exec	ReplyMsg
 		bra	.tloop
-	;-- release hardware semaphore
-.done		lea	(mb_Semaphore,a5),a0	;; TODO: release earlier
-		exec	ReleaseSemaphore
+	;-- release hardware
+.done		bsr	Release			;; TODO: release earlier
 	;-- done
 		movem.l	(SP)+,d0-d3/a0-a6
 		rts
@@ -195,9 +189,8 @@ FlushTransmit	movem.l	d0-d3/a0-a6,-(sp)
 		public	FlushReceive
 FlushReceive	movem.l	d0-d3/a0-a6,-(sp)
 		move.l	a0,a5
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- obtain hardware
+		bsr	Lock
 	;-- stop receive FIFO and interrupts
 		move.l	(mb_HardBase,a5),a4
 		and	#~(MAMF_RFENA|MAMF_RFINTE),(mb_ModusReg,a5)
@@ -219,9 +212,8 @@ FlushReceive	movem.l	d0-d3/a0-a6,-(sp)
 		move.l	d0,a1
 		exec	ReplyMsg
 		bra	.rloop
-	;-- release hardware semaphore
-.done		lea	(mb_Semaphore,a5),a0	;; TODO: release earlier
-		exec	ReleaseSemaphore
+	;-- release hardware
+.done		bsr	Release			;; TODO: release earlier
 	;-- done
 		movem.l	(sp)+,d0-d3/a0-a6
 		rts

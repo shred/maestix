@@ -59,9 +59,8 @@
 StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 		move.l	a0,a5
 		move.l	a1,a4
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- realtime FX already running?
 		tst.b	(mb_RealtimeFX,a5)
 		bne	.done			; yes: leave
@@ -142,9 +141,8 @@ StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 	;-- unmute
 		and	#~MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
-	;-- release hardware semaphore
-.done		lea	(mb_Semaphore,a5),a0
-		exec	ReleaseSemaphore
+	;-- release hardware
+.done		bsr	Release
 	;-- done
 		movem.l	(SP)+,d0-d7/a0-a6
 		rts
@@ -166,9 +164,8 @@ StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 UpdateRealtime	movem.l	d0-d7/a0-a6,-(SP)
 		move.l	a0,a5
 		move.l	a1,a4
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- is a realtime FX active?
 		tst.b	(mb_RealtimeFX,a5)
 		beq	.done			; no: leave
@@ -204,9 +201,8 @@ UpdateRealtime	movem.l	d0-d7/a0-a6,-(SP)
 		beq	.no_d3
 		move.l	d0,a0
 		move.l	(4,a0),(mb_RT_D3,a5)
-.no_d3	;-- release hardware semaphore
-.done		lea	(mb_Semaphore,a5),a0
-		exec	ReleaseSemaphore
+.no_d3	;-- release hardware
+.done		bsr	Release
 	;-- done
 		movem.l	(SP)+,d0-d7/a0-a6
 		rts
@@ -220,9 +216,8 @@ UpdateRealtime	movem.l	d0-d7/a0-a6,-(SP)
 		public	StopRealtime
 StopRealtime	movem.l	d0-d3/a0-a6,-(sp)
 		move.l	a0,a5
-	;-- obtain hardware semaphore
-		lea	(mb_Semaphore,a5),a0
-		exec	ObtainSemaphore
+	;-- lock hardware
+		bsr	Lock
 	;-- is realtime FX active?
 		tst.b	(mb_RealtimeFX,a5)
 		beq	.done			; no: nothing to do
@@ -238,9 +233,8 @@ StopRealtime	movem.l	d0-d3/a0-a6,-(sp)
 	;-- wait for clean exit
 		move.l	#500,d0			; 500us should be sufficient
 		bsr	TimerDelay
-	;-- release hardware semaphore
-.done		lea	(mb_Semaphore,a5),a0
-		exec	ReleaseSemaphore
+	;-- release hardware
+.done		bsr	Release
 	;-- done
 		movem.l	(sp)+,d0-d3/a0-a6
 		rts
