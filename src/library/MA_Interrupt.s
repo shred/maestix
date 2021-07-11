@@ -115,7 +115,7 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 	; DO NOT USE D6 & D7 !
 	; They are trashed by the FX callback.
 		move.b	(mb_LevelFlag,a5),d5	; levelmeter
-		ror.l	#1,d5			;; TODO: .b .l looks suspicious!
+		ror.l	#1,d5			; Move flag to bit 31 (long sign)
 		move.l	(mb_RT_A0,a5),a0	; A0 FX parameter
 		move.l	(mb_RT_A1,a5),a1	; A1 FX parameter
 		move.l	(mb_RT_D2,a5),d2	; D2 FX parameter
@@ -127,7 +127,7 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		jmp	(a3)			; process it
 .return		movem	d0-d1,(mh_tfifo,a4)	; transmit result
 		tst.l	d5
-		bpl	.do_loop
+		bpl	.do_loop		; LevelFlag reset? no post-level required
 		bsr	post_level
 .do_loop	dbra	d4,.loop
 		bra	.noreceive
