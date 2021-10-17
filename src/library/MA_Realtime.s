@@ -122,20 +122,37 @@ StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 		move.l	(mb_HardBase,a5),a4
 		or	#MAMF_EMUTE,(mb_ModusReg,a5)	; turn on mute
 		move	(mb_ModusReg,a5),(mh_modus,a4)
-		lea	(mh_status,a4),a3
-		st	(mb_TFirst,a5)		; flag first access
 	;-- synchronize
-		exec	Disable			;; TODO: timeout
-.waitdwc	move	(a3),d0
-		btst	#MASB_DWC,d0		; wait for DWC to become high
-		beq	.waitdwc
-.waitsync	move	(a3),d0
-		btst	#MASB_DLR,d0		; wait for DLR to become high
-		beq	.waitsync
-		btst	#MASB_DWC,d0		; wait for DWC to become low
-		bne	.waitsync
-	;-- enable FIFOs and interrupts
-		or	#MAMF_TFENA|MAMF_RFENA|MAMF_RFINTE|MAMF_TFINTE,(mb_ModusReg,a5)
+		exec	Disable
+		lea	(mh_status,a4),a3
+	;-- wait for DWC=high
+		move	#MASF_DWC,d1
+.waitthigh	move	(a3),d0
+		and	d1,d0
+		beq	.waitthigh		;; TODO: timeout
+	;-- wait for DWC=low and DLR=low
+		move	#MASF_DWC|MASF_DLR,d1
+.waittlow	move	(a3),d0
+		and	d1,d0
+		bne	.waittlow		;; TODO: timeout
+	;-- enable TFIFO
+		or	#MAMF_TFENA,(mb_ModusReg,a5)
+		move	(mb_ModusReg,a5),(mh_modus,a4)
+		bsr	InitTFIFO
+	;-- it's a good time to handle interrupts now
+		exec	Enable
+		exec	Disable
+	;-- wait for DLR=low
+		move	#MASF_DLR,d1
+.waitrlow	move	(a3),d0
+		and	d1,d0
+		bne	.waitrlow		;; TODO: timeout
+	;-- wait for DLR=high
+.waitrhigh	move	(a3),d0
+		and	d1,d0
+		beq	.waitrhigh		;; TODO: timeout
+	;-- enable RFIFO and interrupt
+		or	#MAMF_RFENA|MAMF_RFINTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		exec	Enable
 	;-- unmute
@@ -222,11 +239,11 @@ StopRealtime	movem.l	d0-d3/a0-a6,-(sp)
 		tst.b	(mb_RealtimeFX,a5)
 		beq	.done			; no: nothing to do
 	;-- disable FIFOs and interrupts
-		move.l	(mb_HardBase,a5),a4	;; TODO: mute
-		exec	Disable
+		move.l	(mb_HardBase,a5),a4
+		; RFINTE is not set, but clearing it won't hurt...
 		and	#~(MAMF_TFENA|MAMF_RFENA|MAMF_TFINTE|MAMF_RFINTE)&$FFFF,(mb_ModusReg,a5)
+		or	#MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
-		exec	Enable
 	;-- clear realtime state
 		sf	(mb_RealtimeFX,a5)
 		sf	(mb_LevelFlag,a5)

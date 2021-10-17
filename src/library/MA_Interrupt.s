@@ -33,6 +33,38 @@
 		SECTION	text,CODE
 
 **
+* Initializes the transmit FIFO.
+*
+*	-> A5.l ^MaestroBase
+*
+		public	InitTFIFO
+InitTFIFO	movem.l	d2-d7/a2-a4,-(SP)
+		move.l	(mb_HardBase,a5),a4
+		move.l	4.w,a6
+	;-- realtime FX enabled?
+		tst.b	(mb_RealtimeFX,a5)
+		bne	.realfx
+	;-- fill from queue
+		bsr	WriteTFIFO
+		bra	.exit
+	;-- fill with zeros
+.realfx		lea	(mh_tfifo,a4),a0
+		moveq	#(1280/32)-1,d0
+		moveq	#0,d1
+		moveq	#0,d2
+		moveq	#0,d3
+		moveq	#0,d4
+		moveq	#0,d5
+		sub.l	a1,a1
+		sub.l	a2,a2
+		sub.l	a3,a3
+.rclearloop	movem.l	d1-d5/a1-a3,(a0)
+		dbra	d0,.rclearloop
+	;-- done
+.exit		movem.l	(SP)+,d2-d7/a2-a4
+		rts
+
+**
 * Handle MaestroPro hardware interrupt.
 *
 *	-> A1.l	^MaestroBase
@@ -55,25 +87,8 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		btst	#MASB_THALF,d0		; transmit FIFO is half full?
 		beq	.notransmit		;   yes: no need to take action
 		btst	#MASB_TEMPTY,d0		; transmit FIFO ran empty?
-		beq	.tfifoempty		;   yes: uh oh, that's bad!
+		beq	.tfifo_error		;   yes: uh oh, that's bad!
 		bsr	WriteTFIFO		; transmit FIFO half empty, fill it up.
-		bra	.notransmit
-	;---- transmit FIFO is empty!
-.tfifoempty	tst.b	(mb_TFirst,a5)		; okay if transmission just started
-		beq	.tfifo_error		; no, report an error
-		lea	(mh_tfifo,a4),a0	; otherwise fill transmit FIFO
-		moveq	#(512/32)-1,d0		; with 0 to clear the interrupt
-		moveq	#0,d1
-		moveq	#0,d2
-		moveq	#0,d3
-		moveq	#0,d4
-		moveq	#0,d5
-		sub.l	a1,a1
-		sub.l	a2,a2
-		sub.l	a3,a3
-.clearloop	movem.l	d1-d5/a1-a3,(a0)
-		dbra	d0,.clearloop
-		sf	(mb_TFirst,a5)		; now we have a clean state
 		bra	.notransmit
 	;---- stop transmit FIFO if it ran empty
 .tfifo_error	and	#~(MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
@@ -103,12 +118,12 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 
 	;-- REALTIME EFFECTS
 .realfx		move	(mb_ModusReg,a5),d0
-		and	#MAMB_RFINTE|MAMB_TFINTE,D0	; interrupts are enabled?
+		btst	#MAMB_RFINTE,d0		; interrupt is enabled?
 		beq	.noreceive
 		move.l	(mb_HardBase,a5),a4
 		move	(mh_status,a4),d0
 		btst	#MASB_TEMPTY,d0		; transmit FIFO empty?
-		beq	.realcheck		;    yes: check why
+		beq	.realdone		;    yes: we were too slow, stop
 		btst	#MASB_RFULL,d0		; receive FIFO full?
 		beq	.realdone		;    (should never happen)
 	;-- process buffers
@@ -134,27 +149,12 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		move.l	d6,(mb_RT_D6,a5)
 		move.l	d7,(mb_RT_D7,a5)
 		bra	.noreceive
-	;-- check transmit FIFO underflow
-.realcheck	tst.b	(mb_TFirst,a5)		; first invocation?
-		beq	.realdone		;   no: report error
-		lea	(mh_tfifo,a4),a0	; fill transmit fifo to clean interrupt
-		moveq	#(1280/32)-1,d0
-		moveq	#0,d1
-		moveq	#0,d2
-		moveq	#0,d3
-		moveq	#0,d4
-		moveq	#0,d5
-		sub.l	a1,a1
-		sub.l	a2,a2
-		sub.l	a3,a3
-.rclearloop	movem.l	d1-d5/a1-a3,(a0)
-		dbra	d0,.rclearloop
-		sf	(mb_TFirst,a5)
-		bra	.noreceive
 	;-- FIFO overflow during realtime FX
 	; Both FIFOs are processed synchronously, so an overflow should never
 	; happen. But now we are here, let's handle it like a pro. :)
+	; RFINTE is not set, but clearing it won't hurt...
 .realdone	and	#~(MAMF_RFENA|MAMF_RFINTE|MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
+		or	#MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)	; stop all FIFOs and ints
 		st	(mb_RError,a5)			; report receive error	;; TODO: cleared where?
 		st	(mb_TError,a5)			; report transmit error

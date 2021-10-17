@@ -68,21 +68,23 @@ TransmitData	movem.l	d0-d7/a0-a6,-(sp)
 	;-- initialize transmit FIFO
 		or	#MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
-		lea	(mh_status,a4),a3	;; TODO: A3 is set again?
-		st	(mb_TFirst,a5)		; first access?
-		exec	Disable
 	;-- synchronize
-.waitdwc	move	(a3),d0			;; TODO: timeout
-		btst	#MASB_DWC,d0		; wait for DWC to become high
-		beq	.waitdwc
-.waitsync	move	(a3),d0
-		btst	#MASB_DLR,d0		; wait for DLR to become high
-		beq	.waitsync
-		btst	#MASB_DWC,d0		; weit for DWC to become low
-		bne	.waitsync
-	;-- enable transmit FIFO and interrupt
+		exec	Disable
+		lea	(mh_status,a4),a3
+	;-- wait for DWC=high
+		move	#MASF_DWC,d1
+.waithigh	move	(a3),d0
+		and	d1,d0
+		beq	.waithigh		;; TODO: timeout
+	;-- wait for DWC=low and DLR=low
+		move	#MASF_DWC|MASF_DLR,d1
+.waitlow	move	(a3),d0
+		and	d1,d0
+		bne	.waitlow		;; TODO: timeout
+	;-- enable FIFOs and interrupts
 		or	#MAMF_TFINTE|MAMF_TFENA,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
+		bsr	InitTFIFO
 		exec	Enable
 	;-- unmute output
 		and	#~MAMF_EMUTE,(mb_ModusReg,a5)
@@ -121,17 +123,18 @@ ReceiveData	movem.l	d0-d2/a0/a2-a6,-(sp)
 	;-- lock hardware
 		bsr	Lock
 	;-- synchronize
+		exec	Disable
 		lea	(mh_status,a4),a3
-		exec	Disable			;; TODO: timeout
-.waitdwc	move	(a3),d0
-		btst	#MASB_DWC,d0		; wait for DWC to become high
-		beq	.waitdwc
-.waitsync	move	(a3),d0			; wait for DLR to become high
-		btst	#MASB_DLR,d0
-		beq	.waitsync
-		btst	#MASB_DWC,d0		; wait for DWC to become low
-		bne	.waitsync
-	;-- enable receive FIFO and interrupt
+	;-- wait for DLR=low
+		move	#MASF_DLR,d1
+.waitlow	move	(a3),d0
+		and	d1,d0
+		bne	.waitlow		;; TODO: timeout
+	;-- wait for DLR=high
+.waithigh	move	(a3),d0
+		and	d1,d0
+		beq	.waithigh		;; TODO: timeout
+	;-- enable FIFOs and interrupts
 		or	#MAMF_RFENA|MAMF_RFINTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		exec	Enable

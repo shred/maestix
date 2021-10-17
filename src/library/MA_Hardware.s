@@ -1056,7 +1056,6 @@ GetUDB		movem.l	a4-a5,-(sp)
 		movem.l	(sp)+,a4-a5
 		rts
 
-
 **
 * Lock the hardware. The current thread will gain exclusive access to the
 * MaestroPro hardware and the delay timer.
