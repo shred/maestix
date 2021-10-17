@@ -991,7 +991,7 @@ ShiftReg	movem.l	d0/d5-d7/a0,-(sp)
 	;-- select shift register
 		and	#~(MAMF_ECLD|MAMF_ECLK),(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
-		move.l	#5000,d0		; 5ms
+		move.l	#50,d0		; 50 us is enough (specs: min 800 ns)
 		bsr	TimerDelay
 	;-- shift in the value
 		bsr	.doloop
@@ -999,8 +999,6 @@ ShiftReg	movem.l	d0/d5-d7/a0,-(sp)
 		move.l	d2,d6
 		moveq	#2,d7
 		bsr	.doloop
-		move.l	#5000,d0		; 5ms
-		bsr	TimerDelay
 	;-- deselect shift register
 		and	#~(MAMF_ECLK|MAMF_ECIN),(mb_ModusReg,a5)
 		or	#MAMF_ECLD,(mb_ModusReg,a5)
@@ -1022,13 +1020,11 @@ ShiftReg	movem.l	d0/d5-d7/a0,-(sp)
 		or	#MAMF_ECLK,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
 	;---- clock pulse
-.bitset		move.l	#1000,d0		; 1ms
+.bitset		move.l	#10,d0		; 10us is enough (specs: min 50 ns)
 		bsr	TimerDelay
 		and	#~MAMF_ECLK,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a0)
-.doloop		move.l	#1000,d0		; 1ms
-		bsr	TimerDelay
-		dbra	d7,.setloop
+.doloop		dbra	d7,.setloop
 		rts
 
 
