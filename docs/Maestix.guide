@@ -169,8 +169,6 @@ These Maestix bugs are known:
   mitigated. I recommend to use a fast processor, or an external
   serial card (like e.g. MultiFace II).
 
-· In rare cases, channels are swapped on realtime FX.
-
 · Some example programs will hang if the board is already allocated.
   The problem is a deadlock while waiting for a process to end. It
   is not an issue with the library, but purely caused by personal
@@ -180,14 +178,23 @@ These Maestix bugs are known:
 @Node History "Maestix: History"
 
 V42.00 (2021-??-??)
-        · Switch to vbcc. Maestix is Open Source now. :)
-        · Realtime FX callbacks can use D6 and D7 as aggregation registers
+        · Maestix is Open Source now. :-)
+        · Many small performance and robustness optimizations.
+        · Fixed: On Realtime FX, left and right channel were sometimes
+          swapped.
+        · Playback latency has been reduced by about 10 ms, enhancing
+          lip synchronization of video playbacks.
+        · Realtime FX callbacks can use D6 and D7 as aggregation registers.
         · Thanks to the new aggregation registers, RFX_Robot does not need
-          the MRRobot structure any more. You can still pass it in for
-          compatibility reasons, but it will be ignored.
+          the MRRobot structure any more, and it has been removed for that
+          reason. Old tools can still use V42 because the pointer to
+          RFX_Robot is just ignored now. If you use RFX_Robot in your own
+          software, just require version V42 or higher, and remove that
+          structure altogether.
 
 V41.50 (1999-07-04)
         · Hopefully fixed the "noise" bug
+        · (This version was unreleased.)
 
 V41.40 (1999-05-15)
         · Removed nearly all Disable() calls. Those remaining are REALLY
