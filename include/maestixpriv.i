@@ -146,8 +146,8 @@ mb_RT_D6	rs.l	1		; Realtime FX D6 aggregator value
 mb_RT_D7	rs.l	1		; Realtime FX D7 aggregator value
 mb_OldInput	rs.l	1		; Old input value
 mb_OldOutput	rs.l	1		; Old output value
-mb_PostLevelR	rs.w	1		; \ Output level R (keep this order!!!)
-mb_PostLevelL	rs.w	1		; / Output level L
+mb_PostLevelR	rs.w	1		; Output level R
+mb_PostLevelL	rs.w	1		; Output level L
 mb_Semaphore	rs.b	SS_SIZE		; Access Semaphore
 mb_TFirst	rs.b	1		; -1: First interrupt: fill T-FIFO if empty
 mb_Pad		rs.b	1

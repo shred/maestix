@@ -250,8 +250,11 @@ StopRealtime	movem.l	d0-d3/a0-a6,-(sp)
 *	<- D0.l LSB: left, MSB: right level
 *
 		public	ReadPostLevel
-ReadPostLevel	move.l	(mb_PostLevelR,a0),d0	;; TODO requires offset order, ugly
-		clr.l	(mb_PostLevelR,a0)
+ReadPostLevel	move	(mb_PostLevelR,a0),d0
+		swap	d0
+		move	(mb_PostLevelL,a0),d0
+		clr	(mb_PostLevelR,a0)
+		clr	(mb_PostLevelL,a0)
 		rts
 
 
