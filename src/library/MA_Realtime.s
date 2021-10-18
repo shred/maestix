@@ -122,9 +122,9 @@ StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 		move.l	(mb_HardBase,a5),a4
 		or	#MAMF_EMUTE,(mb_ModusReg,a5)	; turn on mute
 		move	(mb_ModusReg,a5),(mh_modus,a4)
-	;-- synchronize
-		exec	Disable
+	;-- synchronize transmitter
 		lea	(mh_status,a4),a3
+		exec	Disable
 	;-- wait for DWC=high
 		move	#MASF_DWC,d1
 .waitthigh	move	(a3),d0
@@ -139,9 +139,9 @@ StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 		or	#MAMF_TFENA,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 		bsr	InitTFIFO
-	;-- it's a good time to handle interrupts now
-		exec	Enable
-		exec	Disable
+	;-- synchronize receiver
+		exec	Enable			; handle interrupts now
+		exec.q	Disable
 	;-- wait for DLR=low
 		move	#MASF_DLR,d1
 .waitrlow	move	(a3),d0
@@ -153,11 +153,9 @@ StartRealtime	movem.l	d0-d7/a0-a6,-(sp)
 		beq	.waitrhigh		;; TODO: timeout
 	;-- enable RFIFO and interrupt
 		or	#MAMF_RFENA|MAMF_RFINTE,(mb_ModusReg,a5)
-		move	(mb_ModusReg,a5),(mh_modus,a4)
-		exec	Enable
-	;-- unmute
 		and	#~MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
+		exec	Enable
 	;-- release hardware
 .done		bsr	Release
 	;-- done
@@ -248,7 +246,7 @@ StopRealtime	movem.l	d0-d3/a0-a6,-(sp)
 		sf	(mb_RealtimeFX,a5)
 		sf	(mb_LevelFlag,a5)
 	;-- wait for clean exit
-		move.l	#500,d0			; 500us should be sufficient
+		move.l	#2000,d0		; 2ms should be sufficient
 		bsr	TimerDelay
 	;-- release hardware
 .done		bsr	Release

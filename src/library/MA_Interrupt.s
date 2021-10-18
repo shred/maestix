@@ -49,7 +49,7 @@ InitTFIFO	movem.l	d2-d7/a2-a4,-(SP)
 		bra	.exit
 	;-- fill with zeros
 .realfx		lea	(mh_tfifo,a4),a0
-		moveq	#(1280/32)-1,d0
+		moveq	#((1024+512)/32)-1,d0	; fill TFIFO to 3/4
 		moveq	#0,d1
 		moveq	#0,d2
 		moveq	#0,d3
@@ -60,6 +60,7 @@ InitTFIFO	movem.l	d2-d7/a2-a4,-(SP)
 		sub.l	a3,a3
 .rclearloop	movem.l	d1-d5/a1-a3,(a0)
 		dbra	d0,.rclearloop
+		move	d1,(a0)			; compensate for L/R swap
 	;-- done
 .exit		movem.l	(SP)+,d2-d7/a2-a4
 		rts
@@ -123,9 +124,11 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 		move.l	(mb_HardBase,a5),a4
 		move	(mh_status,a4),d0
 		btst	#MASB_TEMPTY,d0		; transmit FIFO empty?
-		beq	.realdone		;    yes: we were too slow, stop
+		beq	.realerror		;    yes: we were too slow, stop
 		btst	#MASB_RFULL,d0		; receive FIFO full?
-		beq	.realdone		;    (should never happen)
+		beq	.realerror		;    (should never happen)
+		btst	#MASB_RHALF,d0		; receive FIFO less than half full?
+		bne	.noreceive		;    yes: no need to take action
 	;-- process buffers
 		move.b	(mb_LevelFlag,a5),d5	; levelmeter
 		ror.l	#1,d5			; Move flag to bit 31 (long sign)
@@ -153,7 +156,7 @@ IntServer	movem.l	d2-d7/a2-a4,-(sp)
 	; Both FIFOs are processed synchronously, so an overflow should never
 	; happen. But now we are here, let's handle it like a pro. :)
 	; RFINTE is not set, but clearing it won't hurt...
-.realdone	and	#~(MAMF_RFENA|MAMF_RFINTE|MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
+.realerror	and	#~(MAMF_RFENA|MAMF_RFINTE|MAMF_TFENA|MAMF_TFINTE)&$FFFF,(mb_ModusReg,a5)
 		or	#MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)	; stop all FIFOs and ints
 		st	(mb_RError,a5)			; report receive error	;; TODO: cleared where?

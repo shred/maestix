@@ -161,7 +161,7 @@ FlushTransmit	movem.l	d0-d3/a0-a6,-(sp)
 		or	#MAMF_EMUTE,(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 	;-- wait for changes to become effective
-		move.l	#500,d0			; 500us should be sufficient...
+		move.l	#2000,d0		; 2ms should be sufficient...
 		bsr	TimerDelay
 	;-- reply current transmit message
 		move.l	(mb_CurrTMsg,a5),d0
@@ -199,7 +199,7 @@ FlushReceive	movem.l	d0-d3/a0-a6,-(sp)
 		and	#~(MAMF_RFENA|MAMF_RFINTE),(mb_ModusReg,a5)
 		move	(mb_ModusReg,a5),(mh_modus,a4)
 	;-- wait for changes to become effective
-		move.l	#500,d0			; 500us should be sufficient...
+		move.l	#2000,d0		; 2ms should be sufficient...
 		bsr	TimerDelay
 	;-- reply current receive message
 		move.l	(mb_CurrRMsg,a5),d0
