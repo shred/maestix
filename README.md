@@ -52,6 +52,14 @@ Official binaries are available [at AmiNet](http://aminet.net/package/driver/aud
 
 **Please DO NOT UPLOAD new releases to this AmiNet project. If you want to release a fork, use a different project name.**
 
+## Broken MaestroPro and Toccata boards
+
+If you need help with repairing your MaestroPro or Toccata board, please contact me.
+
+I was able to read the fusemaps of all GALs on both boards, so I can now refresh old GALs, or burn new ones. Please understand that the fusemaps are still copyrighted by MacroSystem, so I am not permitted to publish them. Also note that I don't have the fusemaps of other MacroSystem boards.
+
+If you intend to discard your sound board because it is not functional, please get in contact with me first.
+
 ## Why is there no 68000 version?
 
 With a tiny modification to the `makefile`, an 68000 version can be built. However, due to the large amount of data moved between the driver and the MaestroPro card, it doesn't really make much fun to use it on an 68000 processor. If you really need an 68000 version, you can build it yourself from this source, or get in contact with me.

@@ -1294,16 +1294,28 @@ Formula:        L := (Lold while (Lcnt+MTAG_D2)<Lmax), else Lold=L, Lcnt-=Lmax
   No. Just enlarge the window to see the rest of the GUI.
 
 
+@{B}My MaestroPro is broken. What can I do?@{UB}
+
+  If your MaestroPro is instable, does not work partially, or crashes the
+  maestix.library, it may be broken. These cards were built in the 1990's,
+  so condensors may have dried out, or sockets might be corroded. Also,
+  the three GALs on the board only have a specified memory retention time
+  of about 20 years, so they might have started to lose their programming.
+
+  Please get in contact with me if you need help with repairing your board.
+
+  I was able to read the contents of all three GALs, so I can refresh old
+  GALs or burn new ones. Please understand that the GAL fusemaps are
+  copyrighted by MacroSystem, so I am not permitted to publish them.
+
+  If you intend to discard your MaestroPro because it is not functional,
+  please get in contact with me first.
+
+
 @{B}Where can I buy a MaestroPro?@{UB}
 
   These boards are extremely rare by now, but you may still find them on
   online auction portals if you're lucky.
-
-  It's also not possible to build new ones. Firstly because the Yamaha
-  digital audio interface chips are not produced any more, and also very
-  hard to find by now. Secondly because there are three custom PAL chips
-  on the board, but their programs are not available, nor (to my knowledge)
-  can they be reengineered.
 
 
 @{B}I got a smaller Maestro (without "Pro", product ID 3). Can I use it?@{UB}
