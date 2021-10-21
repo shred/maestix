@@ -36,10 +36,10 @@
 MAX_DELAY	EQU	30000		; maximum DAT setup delay (ms)
 
 VERSION		MACRO
-		dc.b	"2.2"
+		dc.b	"2.3"
 		ENDM
 DATE		MACRO
-		dc.b	"25.9.97"
+		dc.b	"23.10.2021"
 		ENDM
 
 		SECTION	text,CODE

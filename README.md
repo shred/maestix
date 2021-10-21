@@ -4,9 +4,9 @@ Maestix is a shared Amiga library that drives the MaestroPro sound board by Macr
 
 ![MaestroPro](images/maestropro.jpg)
 
-This is not the official MaestroPro driver. There never has been one. Originally that board could only be used by a small handful of proprietary tools that came included with the MaestroPro, or were sold separately. I always wanted to use the sound board for my own purposes, so one day I decided to get the datasheet of the Yamaha chips, take some hardware measurements, and then write my own driver based on reverse engineering. The Maestix library is the result of that endeavor. Over the years it grew to the de-facto driver for the MaestroPro.
+This is not the official MaestroPro driver. There never has been one. Originally that board could only be used by a small handful of proprietary tools that came included with the MaestroPro, or were sold separately. I always wanted to use the sound board for my own purposes, so one day I decided to obtain the datasheets of the Yamaha chips, do some measurements of the hardware, and then write my own driver based on that reverse engineering. The Maestix library is the result of that endeavor. Over the years it grew to the de-facto driver for the MaestroPro.
 
-The source code was closed, like almost all of my Amiga projects. I have now reviewed and reformatted the files, translated the comments from German to English, added an English documentation, and made the project compilable on Linux (and probably other targets) using vbcc. The source is now open to everyone for using, studying, archivation, or just enjoying the good old Amiga times.
+The source code was closed, like almost all of my Amiga projects. I have now reviewed and reformatted the files, translated the comments from German to English, added English documentation, and made the project compilable on Linux (and probably other targets) using vbcc. The source is now open to everyone for using, studying, archivation, or just enjoying the good old Amiga times.
 
 ## Features
 
@@ -17,7 +17,7 @@ The source code was closed, like almost all of my Amiga projects. I have now rev
 * 16 realtime audio effects, custom realtime effects are possible.
 * Channel Status Bits and User Data Bits can be individually set.
 * Very easy to use. No hardware knowledge about MaestroPro is required.
-* VMM compatible, no hacks, no muforce, mungwall, and patchwork hits.
+* VMM compatible, no hacks, no muforce, no mungwall, and no patchwork hits.
 * Requires 68020 or higher. 68060 and DraCo compatible.
 * GPL licensed, open source.
 * Source Code is available at [GitHub](https://github.com/shred/maestix).
@@ -40,7 +40,7 @@ Set the `AMIGA_NDK` env variable to the location of the unpacked `NDK3.2` direct
 
 Then just invoke `make` to build the project. The compiled project can be found in the `build` directory. `make release` will compile a release version in the `release` directory.
 
-Today's standard encoding is UTF-8. Sadly AmigaOS does not support this encoding, so the files in this project have different encodings depending on their purpose. The assembler and C files must use plain ASCII encoding, so they can be edited on Linux and Amiga without encoding problems. For special characters in strings, always use escape sequences. Do not use special characters in comments. `make check` will test if these files contain illegal characters. All purely Amiga-related files (like AmigaGuide files) are expected to be ISO-8859-1 encoded. Then again, `README.md` (and other files related to the open source release) are UTF-8 encoded. If you are in doubt, use plain ASCII.
+Today's standard encoding is UTF-8. Unfortunately AmigaOS does not support this encoding, so the files in this project have different encodings depending on their purpose. The assembler and C files must use plain ASCII encoding, so they can be edited on Linux and Amiga without encoding problems. For special characters in strings, always use escape sequences. Do not use special characters in comments. `make check` will test if these files contain illegal characters. All purely Amiga-related files (like AmigaGuide files) are expected to be ISO-8859-1 encoded. Then again, `README.md` (and other files related to the open source release) are UTF-8 encoded. If you are in doubt, use plain ASCII.
 
 ## Contribution and Releases
 
@@ -50,7 +50,7 @@ If you found a bug or have a feature request, feel free to [open an issue](https
 
 Official binaries are available [at AmiNet](http://aminet.net/package/driver/audio/Maestix).
 
-**Please DO NOT UPLOAD new releases to this AmiNet project. If you want to release a fork, use a different project name.**
+**Please keep the "Maestix" package name reserved for official releases. If you want to release a fork, use a different package name.**
 
 ## Broken MaestroPro and Toccata boards
 

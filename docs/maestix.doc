@@ -533,8 +533,8 @@ maestix.library/UpdateRealtime
                 -> D1 -- (WORD) right sample
                 -> D2 -- (ULONG) MTAG_D2 value
                 -> D3 -- (ULONG) MTAG_D3 value
-                -> D6 -- (ULONG) D6 value of previous invocation
-                -> D7 -- (ULONG) D7 value of previous invocation
+                -> D6 -- (ULONG) D6 value of previous invocation [V42]
+                -> D7 -- (ULONG) D7 value of previous invocation [V42]
                 -> A0 -- (APTR) MTAG_A0 value
                 -> A1 -- (APTR) MTAG_A1 value
                 -> A2 -- Return address after processing.
@@ -543,8 +543,8 @@ maestix.library/UpdateRealtime
 
                 <- D0 -- (WORD) new left sample
                 <- D1 -- (WORD) new right sample
-                <- D6 -- (ULONG) new D6 value
-                <- D7 -- (ULONG) new D7 value
+                <- D6 -- (ULONG) new D6 value [V42]
+                <- D7 -- (ULONG) new D7 value [V42]
 
         The callback returns by "JMP (A2)", it MUST NOT return by RTS!
 
@@ -563,7 +563,8 @@ maestix.library/UpdateRealtime
         invocation time.
 
         The effect routine must be in MEMF_PUBLIC memory. Note that a task
-        must not be necessarily running in MEMF_PUBLIC memory!
+        must not be necessarily running in MEMF_PUBLIC memory, you need to
+        set this explicitly!
 
         If the effect routine is too slow on the used processor, the
         realtime FX will stop automatically after a FIFO overflow.
@@ -679,7 +680,7 @@ maestix.library/UpdateRealtime
 maestix.library/UpdateRealtime                 maestix.library/UpdateRealtime
 
    NAME
-        UpdateRealtime -- Changes RealtimeFX parameters at run-time [V41]
+        UpdateRealtime -- Changes RealtimeFX parameters at run-time (V41)
 
    SYNOPSIS
         UpdateRealtime (MaestroBase, Tags)

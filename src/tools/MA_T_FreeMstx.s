@@ -34,10 +34,10 @@
 		INCLUDE	maestixpriv.i
 
 VERSION         MACRO
-		dc.b	"2.1"
+		dc.b	"2.2"
 		ENDM
 DATE            MACRO
-		dc.b	"8.1.96"
+		dc.b	"23.10.2021"
 		ENDM
 
 		SECTION	text,CODE

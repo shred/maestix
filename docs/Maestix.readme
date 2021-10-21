@@ -2,7 +2,7 @@ Short:        MaestroPro driver + AHI driver
 Author:       Richard 'Shred' Koerber
 Uploader:     aminet@shredzone.de (Richard Koerber)
 Type:         driver/audio
-Version:      41.50
+Version:      42.00
 Requires:     MaestroPro hardware
 Architecture: m68k-amigaos >= 2.0.4
 
@@ -22,7 +22,7 @@ Features:
   - 16 realtime audio effects, custom realtime effects are possible.
   - Channel Status Bits and User Data Bits can be individually set.
   - Very easy to use. No hardware knowledge about MaestroPro is required.
-  - VMM compatible, no hacks, no muforce, mungwall, and patchwork hits.
+  - VMM compatible, no hacks, no muforce, no mungwall, no patchwork hits.
   - Requires 68020 or higher. 68060 and DraCo compatible.
   - GPL licensed, open source.
   - Source Code is available at GitHub: https://github.com/shred/maestix
@@ -34,9 +34,10 @@ New in this release:
   - The source code is published under GPLv3 license
   - Finally, there is an English documentation now.
     (The German documentation has been removed in its favor.)
-  - Minor optimizations and bug fixes
+  - Realtime FX can use D6 and D7 as aggregation registers now
+  - Optimizations and bug fixes
 
 Why 68020 or higher? Well, due to the amount of data moved by the driver
 and the MaestroPro card, it doesn't really make much fun to use it on an
 68000 processor. However, if you really need an 68000 version of this
-library, please get in contact with me.
+library, you can build it yourself now, or get in contact with me.

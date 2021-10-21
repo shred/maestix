@@ -61,14 +61,14 @@ AHIDB_MyModeID	EQU	AHIDB_UserBase+0
 		SECTION	text,CODE
 
 VERSION		EQU	2		;<- Version
-REVISION	EQU	3		;<- Revision
+REVISION	EQU	4		;<- Revision
 
 SETVER          MACRO                   ;<- Version String Macro
-		dc.b	"2.3"
+		dc.b	"2.4"
 		ENDM
 
 SETDATE         MACRO                   ;<- Date String MACRO
-		dc.b	"28.10.97"
+		dc.b	"23.10.21"
 		ENDM
 
 

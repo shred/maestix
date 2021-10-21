@@ -1,7 +1,7 @@
 @database Maestix.guide
 @author "Richard Körber"
-@(c) "1995-99 Richard Körber"
-@$VER: maestix.guide V41.50 (15.5.1999)
+@(c) "1995-2021 Richard Körber"
+@$VER: maestix.guide V42.00 (23.10.2021)
 @wordwrap
 
 @Node Main "Maestix: Table of Contents"
@@ -76,8 +76,8 @@ engineer the hardware.
 
 First I organized the data sheets of the two Yamaha digital audio
 interface chips. It wasn't easy because in 1994, there were no such
-information in the Internet, so I had to resort to libraries and other
-sources.
+information on the internet, so I had to resort to public libraries
+and other sources.
 
 Then I searched for register addresses. When I found them, it just
 took some more measurements to discover the bit allocation. With some
@@ -135,8 +135,8 @@ You should find a LICENSE.txt file in this package, or on the internet
 at http://www.gnu.org/licenses/gpl.html .
 
 You can use the software for free. However, if you use Maestix in a
-commercial product, I would love to get a free lifetime license of your
-work in return.
+shareware or commercial product, I would love to get a free lifetime
+license of your work in return.
 
 
 @{B} SOURCE CODE @{UB}
@@ -177,7 +177,7 @@ These Maestix bugs are known:
 @EndNode
 @Node History "Maestix: History"
 
-V42.00 (2021-??-??)
+V42.00 (2021-10-23)
         · Maestix is Open Source now. :-)
         · Many small performance and robustness optimizations.
         · Fixed: On Realtime FX, left and right channel were sometimes
@@ -191,10 +191,10 @@ V42.00 (2021-??-??)
           RFX_Robot is just ignored now. If you use RFX_Robot in your own
           software, just require version V42 or higher, and remove that
           structure altogether.
+        · Built on Linux using vbcc. If it won't work, blame Linus. ;-)
 
-V41.50 (1999-07-04)
+V41.50 (1999-07-04, unreleased)
         · Hopefully fixed the "noise" bug
-        · (This version was unreleased.)
 
 V41.40 (1999-05-15)
         · Removed nearly all Disable() calls. Those remaining are REALLY
@@ -349,12 +349,13 @@ V34.00 (1994-12-21)
 @EndNode
 @Node Future "Maestix: Future"
 
-Well, that's it, more or less...
+In 1999, after five years of active programming, the library was
+feature complete and mature. There may be some more minor features
+added in coming releases, but all in all, that's it.
 
-In 1999, after five years of active programming, the library is now
-feature complete and mature. I also don't expect that many people
-are still having a MaestroPro board in active use. So don't expect
-too many updates in the future.
+I also don't expect that many people are still having a MaestroPro
+board in active use, so I don't know if it's worth putting too
+much time into this project.
 
 However, as Maestix is Open Source Software now, feel free to
 contribute.
@@ -958,8 +959,8 @@ These are the callback parameters:
         -> D1 (WORD)    Right channel sample
         -> D2 (ULONG)   MTAG_D2 parameter
         -> D3 (ULONG)   MTAG_D3 parameter
-        -> D6 (ULONG)   scratch register for free use
-        -> D7 (ULONG)   scratch register for free use
+        -> D6 (ULONG)   Aggregation register
+        -> D7 (ULONG)   Aggregation register
         -> A0 (APTR)    MTAG_A0 parameter
         -> A1 (APTR))   MTAG_A1 parameter
         -> A2 (APTR)    Return address
@@ -968,9 +969,18 @@ The result is expected here:
 
         <- D0 (WORD)    Processed left channel sample
         <- D1 (WORD)    Processed right channel sample
+        <- D6 (ULONG)   New value of aggregation register
+        <- D7 (ULONG)   New value of aggregation register
 
-You MUST NOT change the D2-D5 and A0-A7 registers! D6 and D7 can be
-scratched though. Do not expect any useful values there on invocation.
+You MUST NOT change the D2-D5 and A0-A7 registers!
+
+D6 and D7 are aggregation registers. They are initialized with 0 when
+the realtime FX is started. After that, it is guaranteed that the
+content that was returned by the previous callback, is passed to the
+next callback invocation. This way, the registers can be used for
+aggregation operations, e.g. calculating the maximum or average
+noise level. They can also be used for counters etc, or just as
+scratch registers.
 
 After processing the sample, the callback must return via JMP (A2).
 Do not return using RTS!
@@ -1253,11 +1263,16 @@ Description:    A timed gate for the input signal. With appropriate
 
 Parameters:     MTAG_D2   (ULONG) Number of samples with opened gate
                 MTAG_D3   (ULONG) Number of samples with closed gate
-                MTAG_A0   (APTR) Pointer to initialized MRRobot structure
 
                 Caution: MTAG_D2 and MTAG_D3 must not contain 0
                 together, otherwise an endless loop will occur, and
                 the system will freeze.
+
+                Note: In maestix.library before v42.00, a MRRobot
+                structure was needed to be initialized and passed in
+                via MTAG_A0. Since v42.00, this structure is not
+                needed any more, and the value in MTAG_A0 will be
+                ignored.
 
 Note:           68020+ is recommended
 
@@ -1282,17 +1297,6 @@ Formula:        L := (Lold while (Lcnt+MTAG_D2)<Lmax), else Lold=L, Lcnt-=Lmax
 
 @EndNode
 @Node FAQ "Maestix: FAQ"
-
-@{B}MaestixFX won't start!@{UB}
-
-  MaestixFX requires MUI by Stefan Stuntz, and Lamp.mcc by Maik "BLiZZeR"
-  Schreiber. You can find both in the AmiNet.
-
-
-@{B}MaestixFX only shows two level meters and a few LEDs. That's all?@{UB}
-
-  No. Just enlarge the window to see the rest of the GUI.
-
 
 @{B}My MaestroPro is broken. What can I do?@{UB}
 
@@ -1326,6 +1330,17 @@ Formula:        L := (Lold while (Lcnt+MTAG_D2)<Lmax), else Lold=L, Lcnt-=Lmax
   to invest the time for developing a driver.
 
 
+@{B}MaestixFX won't start!@{UB}
+
+  MaestixFX requires MUI by Stefan Stuntz, and Lamp.mcc by Maik "BLiZZeR"
+  Schreiber. You can find both in the AmiNet.
+
+
+@{B}MaestixFX only shows two level meters and a few LEDs. That's all?@{UB}
+
+  No. Just enlarge the window to see the rest of the GUI.
+
+
 @{B}Can the MaestroPro also read the index marks sent by my CD player?@{UB}
 
   Probably not. However I don't have sufficient information to give a final
@@ -1349,7 +1364,7 @@ I use it with Maestix?@{UB}
   signal.
 
 
-@{B}I often get FIFO overflows.@{UB}
+@{B}I often get FIFO overflows/underflows.@{UB}
 
   Your processor is too slow. Even though the maestix.library is highly
   optimized, it still takes a lot of CPU power to move the sample data
@@ -1369,9 +1384,9 @@ I use it with Maestix?@{UB}
 @{B}There is no signal when I connect a DVD or BluRay player.@{UB}
 
   Modern devices offer higher sampling rates, higher bit resolutions, or
-  different sound encodings that have not been present when the MaestroPro
-  was developed. You need to change the player settings to plain stereo
-  PCM output, and a maximum sampling rate of 48kHz.
+  different sound encodings that have not been invented yet when the
+  MaestroPro was developed. You need to change the player settings to
+  plain 16 bit stereo PCM output, and a maximum sampling rate of 48kHz.
 
 
 @{B}Why is it called Maestix?@{UB}

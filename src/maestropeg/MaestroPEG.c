@@ -34,8 +34,8 @@
 #define DATANODES 32              // Data messages (frames)
 
 
-#define  VERSIONSTR   "1.0"
-#define  DATESTR      "12.1.2000"
+#define  VERSIONSTR   "1.1"
+#define  DATESTR      "23.10.2021"
 #define  COPYRIGHTSTR "2000-2021"
 #define  URLSTR       "https://maestix.shredzone.org"
 

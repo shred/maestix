@@ -40,7 +40,7 @@
 #include "PIC_Logo.h"
 
 #define VERSION "1.5"
-#define VDATE   "11.07.2021"
+#define VDATE   "23.10.2021"
 
 #define REFRESHRATE (50000)       // unit microseconds
 #define LEVELINERT  (5)           // slowness of the level meter (bigger = slower)
