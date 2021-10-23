@@ -109,7 +109,7 @@ These are the features of the maestix.library:
 · Includes all development files for Assembler and C
 · 100% system conformous, no dirty "hardware hacks"
 · Tested on 68040, 68060 and CyberPPC
-· Fully Open Source (GNU GPLv3)
+· Fully Open Source (GNU LGPLv3)
 
 @EndNode
 @Node Copyright "Maestix: Copyright"
@@ -129,23 +129,24 @@ refrain from asking them for support.
 @{B}---------@{UB}
 
 Maestix is Open Source Software. It is distributed under the
-GNU General Public License v3.
+GNU Lesser General Public License v3.
 
 You should find a LICENSE.txt file in this package, or on the internet
-at http://www.gnu.org/licenses/gpl.html .
+at http://www.gnu.org/licenses/lgpl.html .
 
 You can use the software for free. However, if you use Maestix in a
 shareware or commercial product, I would love to get a free lifetime
-license of your work in return.
+license of your work in return. Thank you!
 
 
 @{B} SOURCE CODE @{UB}
 @{B}-------------@{UB}
 
-You can find the source code at https://maestix.shredzone.org .
+You can find the reference source code at https://maestix.shredzone.org .
 
-If you like to contribute, feel free to open an issue or send a pull
-request.
+If you want to modify the source code, please consider contributing to
+the reference repository. This is better than having an unknown number
+of branches and different source codes versions circulating around.
 
 
 @{B} DISCLAIMER @{UB}
@@ -1314,6 +1315,8 @@ Formula:        L := (Lold while (Lcnt+MTAG_D2)<Lmax), else Lold=L, Lcnt-=Lmax
 
   If you intend to discard your MaestroPro because it is not functional,
   please get in contact with me first.
+
+  You can reach me at: aminet@shredzone.de
 
 
 @{B}Where can I buy a MaestroPro?@{UB}

@@ -19,7 +19,7 @@ The source code was closed, like almost all of my Amiga projects. I have now rev
 * Very easy to use. No hardware knowledge about MaestroPro is required.
 * VMM compatible, no hacks, no muforce, no mungwall, and no patchwork hits.
 * Requires 68020 or higher. 68060 and DraCo compatible.
-* GPL licensed, open source.
+* LGPLv3 licensed, open source.
 * Source Code is available at [GitHub](https://github.com/shred/maestix).
 
 ## Building from Source
@@ -66,4 +66,4 @@ With a tiny modification to the `makefile`, an 68000 version can be built. Howev
 
 ## License
 
-`Maestix` is distributed under GPLv3 ([Gnu Public License](http://www.gnu.org/licenses/gpl.html)).
+`Maestix` is distributed under LGPLv3 ([Lesser Gnu Public License](http://www.gnu.org/licenses/lgpl.html)).

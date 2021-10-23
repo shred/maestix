@@ -7,8 +7,9 @@ Requires:     MaestroPro hardware
 Architecture: m68k-amigaos >= 2.0.4
 
 Keywords:     maestropro maestro mpro driver maestix ocss play16 delitracker ahi realtime mpeg maestixfx
-License:      GNU General Public License v3
-URL:          https://maestix.shredzone.org
+License:      GNU Lesser General Public License v3
+Source:       https://github.com/shred/maestix
+Website:      https://maestix.shredzone.org
 
 Maestix is a system-shared library that drives the MaestroPro sound board
 by MacroSystem.
@@ -24,18 +25,24 @@ Features:
   - Very easy to use. No hardware knowledge about MaestroPro is required.
   - VMM compatible, no hacks, no muforce, no mungwall, no patchwork hits.
   - Requires 68020 or higher. 68060 and DraCo compatible.
-  - GPL licensed, open source.
-  - Source Code is available at GitHub: https://github.com/shred/maestix
+  - LGPLv3 licensed, open source.
 
 This is an official update! :-)
 
 New in this release:
 
-  - The source code is published under GPLv3 license
+  - The source code is published under LGPLv3 license!
   - Finally, there is an English documentation now.
     (The German documentation has been removed in its favor.)
-  - Realtime FX can use D6 and D7 as aggregation registers now
-  - Optimizations and bug fixes
+  - Realtime FX can use D6 and D7 as aggregation registers now.
+  - Optimizations and bug fixes.
+
+The reference repository is at GitHub: https://github.com/shred/maestix
+
+The source code is deliberately not part of this package. If you want to
+modify the source code, please consider contributing to the reference
+repository. This is better than having an unknown number of branches and
+different source codes versions circulating around.
 
 Why 68020 or higher? Well, due to the amount of data moved by the driver
 and the MaestroPro card, it doesn't really make much fun to use it on an
