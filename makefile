@@ -40,7 +40,7 @@ COPTS     = +aos68k -c99 -lauto -lamiga -cpu=68020 \
 LOPTS     = -bamigahunk -mrel -s \
 		-L ${AMIGA_NDK}/lib/ -l debug -l amiga
 
-.PHONY : all clean release check
+.PHONY : all clean release check pack
 
 all: $(OBJP) \
 		$(REFP)/inline/maestix_protos.h \
@@ -65,40 +65,44 @@ clean:
 	rm -rf $(OBJP) $(RELP) $(REFP)/inline/maestix_protos.h $(REFP)/proto/maestix.h
 
 release: clean all
-	cp -r $(DSTP) $(RELP)				# Create base structure and static files
-	mkdir $(RELP)/Maestix/c
-	mkdir $(RELP)/Maestix/examples
-	mkdir $(RELP)/Maestix/include
-	mkdir $(RELP)/Maestix/libs
-	mkdir $(RELP)/MaestixAHI/devs
-	mkdir $(RELP)/MaestixAHI/devs/AHI
-	mkdir $(RELP)/MaestixAHI/devs/AudioModes
+	mkdir $(RELP)
+	mkdir $(RELP)/Maestix
+	cp -rT $(DSTP)/ $(RELP)/Maestix/						# Create base structure and static files
+	mkdir $(RELP)/Maestix/Maestix/c
+	mkdir $(RELP)/Maestix/Maestix/examples
+	mkdir $(RELP)/Maestix/Maestix/include
+	mkdir $(RELP)/Maestix/Maestix/libs
+	mkdir $(RELP)/Maestix/MaestixAHI/devs
+	mkdir $(RELP)/Maestix/MaestixAHI/devs/AHI
+	mkdir $(RELP)/Maestix/MaestixAHI/devs/AudioModes
 
-	cp $(OBJP)/MaestixFX $(RELP)/Maestix/				# Tools
+	cp $(OBJP)/MaestixFX $(RELP)/Maestix/Maestix/		# Tools
 
-	cp $(OBJP)/AllocMstx $(RELP)/Maestix/c/				# C
-	cp $(OBJP)/FreeMstx $(RELP)/Maestix/c/
-	cp $(OBJP)/MaestroPEG $(RELP)/Maestix/c/
-	cp $(OBJP)/SetMstx $(RELP)/Maestix/c/
+	cp $(OBJP)/AllocMstx $(RELP)/Maestix/Maestix/c/		# C
+	cp $(OBJP)/FreeMstx $(RELP)/Maestix/Maestix/c/
+	cp $(OBJP)/MaestroPEG $(RELP)/Maestix/Maestix/c/
+	cp $(OBJP)/SetMstx $(RELP)/Maestix/Maestix/c/
 
-	cp -r $(SRCP)/examples/* $(RELP)/Maestix/examples/		# Examples
-	cp -r $(OBJP)/examples/* $(RELP)/Maestix/examples/
+	cp -r $(SRCP)/examples/* $(RELP)/Maestix/Maestix/examples/		# Examples
+	cp -r $(OBJP)/examples/* $(RELP)/Maestix/Maestix/examples/
 
-	cp -r $(REFP)/* $(RELP)/Maestix/include/			# Includes
+	cp -r $(REFP)/* $(RELP)/Maestix/Maestix/include/			# Includes
 
-	cp $(OBJP)/maestix.library $(RELP)/Maestix/libs/	# Libraries
+	cp $(OBJP)/maestix.library $(RELP)/Maestix/Maestix/libs/	# Libraries
 
-	cp $(OBJP)/maestropro.audio $(RELP)/MaestixAHI/devs/AHI		# AHI
-	cp $(OBJP)/MAESTROPRO $(RELP)/MaestixAHI/devs/AudioModes
+	cp $(OBJP)/maestropro.audio $(RELP)/Maestix/MaestixAHI/devs/AHI		# AHI
+	cp $(OBJP)/MAESTROPRO $(RELP)/Maestix/MaestixAHI/devs/AudioModes
 
-	cp $(DOCP)/maestix.doc $(RELP)/Maestix/				# Docs
-	cp $(DOCP)/Maestix.guide $(RELP)/Maestix/
-	cp $(DOCP)/MaestixAHI.guide $(RELP)/MaestixAHI/
+	cp $(DOCP)/maestix.doc $(RELP)/Maestix/Maestix/				# Docs
+	cp $(DOCP)/Maestix.guide $(RELP)/Maestix/Maestix/
+	cp $(DOCP)/MaestixAHI.guide $(RELP)/Maestix/MaestixAHI/
 
 	rm -f $(OBJP)/Maestix.lha							# Package
-	cd $(RELP) ; lha c -q1 ../$(OBJP)/Maestix.lha *
-	mv $(OBJP)/Maestix.lha $(RELP)/
+	cd $(RELP)/Maestix ; lha c -q1 ../Maestix.lha *
 	cp $(DOCP)/Maestix.readme $(RELP)/
+
+pack: release
+	xdftool $(RELP)/Maestix.adf pack $(RELP)/Maestix
 
 check:
 	# Check for umlauts and other characters that are not platform neutral.

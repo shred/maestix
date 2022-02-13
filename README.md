@@ -35,10 +35,13 @@ Requirements:
 * [MUI](http://sasg.com/mui/download.html) by Stefan Stuntz
 * [Lamp.mcc](http://aminet.net/package/dev/mui/MCC_Lamp) by Maik Schreiber
 * [lha](https://github.com/jca02266/lha)
+* [AmiTools](https://github.com/cnvogelg/amitools) (optional, for the `pack` target only)
 
 Set the `AMIGA_NDK` env variable to the location of the unpacked `NDK3.2` directory on your build machine. Also set `AMIGA_INCLUDES` to the location of 3rd party include files, where the mpega and MUI includes can be found.
 
 Then just invoke `make` to build the project. The compiled project can be found in the `build` directory. `make release` will compile a release version in the `release` directory.
+
+`make pack` will create an adf file in the `release` directory. This file may be useful to install Maestix on disk based systems, but is not part of the official release.
 
 Today's standard encoding is UTF-8. Unfortunately AmigaOS does not support this encoding, so the files in this project have different encodings depending on their purpose. The assembler and C files must use plain ASCII encoding, so they can be edited on Linux and Amiga without encoding problems. For special characters in strings, always use escape sequences. Do not use special characters in comments. `make check` will test if these files contain illegal characters. All purely Amiga-related files (like AmigaGuide files) are expected to be ISO-8859-1 encoded. Then again, `README.md` (and other files related to the open source release) are UTF-8 encoded. If you are in doubt, use plain ASCII.
 
