@@ -6,7 +6,6 @@ Version:      42.00
 Requires:     MaestroPro hardware
 Architecture: m68k-amigaos >= 2.0.4
 
-Keywords:     maestropro maestro mpro driver maestix ocss play16 delitracker ahi realtime mpeg maestixfx
 License:      GNU Lesser General Public License v3
 Source:       https://github.com/shred/maestix
 Website:      https://maestix.shredzone.org
