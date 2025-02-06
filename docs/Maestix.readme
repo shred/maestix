@@ -7,7 +7,7 @@ Requires:     MaestroPro hardware
 Architecture: m68k-amigaos >= 2.0.4
 
 License:      GNU Lesser General Public License v3
-Source:       https://github.com/shred/maestix
+Source:       https://codeberg.org/shred/maestix
 Website:      https://maestix.shredzone.org
 
 Maestix is a system-shared library that drives the MaestroPro sound board
@@ -36,7 +36,7 @@ New in this release:
   - Realtime FX can use D6 and D7 as aggregation registers now.
   - Optimizations and bug fixes.
 
-The reference repository is at GitHub: https://github.com/shred/maestix
+The reference repository is at Codeberg: https://codeberg.org/shred/maestix
 
 The source code is deliberately not part of this package. If you want to
 modify the source code, please consider contributing to the reference

@@ -20,7 +20,7 @@ The source code was closed, like almost all of my Amiga projects. I have now rev
 * VMM compatible, no hacks, no muforce, no mungwall, and no patchwork hits.
 * Requires 68020 or higher. 68060 and DraCo compatible.
 * LGPLv3 licensed, open source.
-* Source Code is available at [GitHub](https://github.com/shred/maestix).
+* Source Code is available at [Codeberg](https://codeberg.org/shred/maestix).
 
 ## Building from Source
 
@@ -47,9 +47,9 @@ Today's standard encoding is UTF-8. Unfortunately AmigaOS does not support this 
 
 ## Contribution and Releases
 
-The source code of this project can be found [at the official GitHub page](https://github.com/shred/maestix).
+The source code of this project can be found [at the official Codeberg page](https://codeberg.org/shred/maestix).
 
-If you found a bug or have a feature request, feel free to [open an issue](https://github.com/shred/maestix/issues) or [send a pull request](https://github.com/shred/maestix/pulls).
+If you found a bug or have a feature request, feel free to [open an issue](https://codeberg.org/shred/maestix/issues) or [send a pull request](https://codeberg.org/shred/maestix/pulls).
 
 Official binaries are available [at AmiNet](http://aminet.net/package/driver/audio/Maestix).
 
