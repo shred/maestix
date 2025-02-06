@@ -1,5 +1,7 @@
 # maestix.library
 
+> The project has moved to [Codeberg](https://codeberg.org/shred/maestix). See you there!
+
 Maestix is a shared Amiga library that drives the MaestroPro sound board by MacroSystem.
 
 ![MaestroPro](images/maestropro.jpg)
